@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة موظف جديد - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إضافة موظف جديد{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>إضافة موظف جديد</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="employeeForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="employee_number" class="form-label">الرقم الوظيفي <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="employee_number" name="employee_number" required>
+                            <div class="invalid-feedback">يرجى إدخال الرقم الوظيفي</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">الاسم الكامل <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="invalid-feedback">يرجى إدخال اسم الموظف</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="position" class="form-label">المنصب <span class="text-danger">*</span></label>
+                            <select class="form-control" id="position" name="position" required>
+                                <option value="">اختر المنصب</option>
+                                <option value="مدير عام">مدير عام</option>
+                                <option value="مدير قسم">مدير قسم</option>
+                                <option value="مشرف">مشرف</option>
+                                <option value="موظف">موظف</option>
+                                <option value="محاسب">محاسب</option>
+                                <option value="سائق">سائق</option>
+                                <option value="فني">فني</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار المنصب</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">القسم <span class="text-danger">*</span></label>
+                            <select class="form-control" id="department" name="department" required>
+                                <option value="">اختر القسم</option>
+                                <option value="الإدارة">الإدارة</option>
+                                <option value="المحاسبة">المحاسبة</option>
+                                <option value="الموارد البشرية">الموارد البشرية</option>
+                                <option value="المبيعات">المبيعات</option>
+                                <option value="التسويق">التسويق</option>
+                                <option value="الصيانة">الصيانة</option>
+                                <option value="النقل">النقل</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار القسم</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="salary" class="form-label">الراتب (ريال) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="salary" name="salary" min="0" step="0.01" required>
+                            <div class="invalid-feedback">يرجى إدخال راتب صحيح</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">رقم الهاتف</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="05xxxxxxxx">
+                            <div class="form-text">مثال: 0501234567</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="example@company.com">
+                            <div class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="hire_date" class="form-label">تاريخ التوظيف <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="hire_date" name="hire_date" required>
+                            <div class="invalid-feedback">يرجى اختيار تاريخ التوظيف</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="notes" class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="أي ملاحظات إضافية عن الموظف..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('employees') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-undo me-2"></i>إعادة تعيين
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>حفظ الموظف
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- معاينة البيانات -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card" id="previewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>معاينة البيانات</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>الاسم:</strong> <span id="previewName">-</span></p>
+                        <p><strong>المنصب:</strong> <span id="previewPosition">-</span></p>
+                        <p><strong>القسم:</strong> <span id="previewDepartment">-</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>الراتب:</strong> <span id="previewSalary">-</span></p>
+                        <p><strong>الهاتف:</strong> <span id="previewPhone">-</span></p>
+                        <p><strong>البريد الإلكتروني:</strong> <span id="previewEmail">-</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .was-validated .form-control:valid {
+        border-color: #28a745;
+    }
+    
+    .was-validated .form-control:invalid {
+        border-color: #dc3545;
+    }
+    
+    .preview-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('employeeForm');
+        const previewCard = document.getElementById('previewCard');
+        
+        // تعيين تاريخ اليوم كافتراضي
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('hire_date').value = today;
+        
+        // معاينة البيانات أثناء الكتابة
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+        
+        function updatePreview() {
+            const name = document.getElementById('name').value;
+            const position = document.getElementById('position').value;
+            const department = document.getElementById('department').value;
+            const salary = document.getElementById('salary').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            
+            if (name || position || department || salary) {
+                document.getElementById('previewName').textContent = name || '-';
+                document.getElementById('previewPosition').textContent = position || '-';
+                document.getElementById('previewDepartment').textContent = department || '-';
+                document.getElementById('previewSalary').textContent = salary ? formatCurrency(salary) : '-';
+                document.getElementById('previewPhone').textContent = phone || '-';
+                document.getElementById('previewEmail').textContent = email || '-';
+                
+                previewCard.style.display = 'block';
+            } else {
+                previewCard.style.display = 'none';
+            }
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-SA', {
+                style: 'currency',
+                currency: 'SAR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // التحقق من صحة النموذج
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+        
+        // التحقق من رقم الهاتف السعودي
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function() {
+            const phone = this.value;
+            const saudiPhoneRegex = /^05[0-9]{8}$/;
+            
+            if (phone && !saudiPhoneRegex.test(phone)) {
+                this.setCustomValidity('يرجى إدخال رقم هاتف سعودي صحيح (05xxxxxxxx)');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // تنسيق الراتب أثناء الكتابة
+        const salaryInput = document.getElementById('salary');
+        salaryInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value) {
+                // إضافة فواصل للأرقام
+                const formatted = parseFloat(value).toLocaleString('ar-SA');
+                // لا نغير القيمة الفعلية، فقط نعرض التنسيق في المعاينة
+            }
+        });
+        
+        // تأثير التركيز على الحقول
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
+{% endblock %}

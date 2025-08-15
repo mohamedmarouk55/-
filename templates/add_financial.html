@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة سجل مالي - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إضافة سجل مالي جديد{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>إضافة سجل مالي جديد</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="financialForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label">نوع العملية <span class="text-danger">*</span></label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="">اختر النوع</option>
+                                <option value="إيراد">إيراد</option>
+                                <option value="مصروف">مصروف</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار نوع العملية</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">الفئة <span class="text-danger">*</span></label>
+                            <select class="form-control" id="category" name="category" required>
+                                <option value="">اختر الفئة</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار الفئة</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="amount" class="form-label">المبلغ (ريال) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="amount" name="amount" min="0" step="0.01" required placeholder="0.00">
+                            <div class="invalid-feedback">يرجى إدخال مبلغ صحيح</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">التاريخ <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                            <div class="invalid-feedback">يرجى اختيار التاريخ</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="description" class="form-label">الوصف</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="وصف تفصيلي للعملية المالية (اختياري)"></textarea>
+                            <div class="form-text">يمكنك إضافة تفاصيل إضافية حول هذه العملية المالية</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('financial') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-undo me-2"></i>إعادة تعيين
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>حفظ السجل
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- معاينة البيانات -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card" id="previewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>معاينة السجل المالي</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="financial-preview-item">
+                            <i class="fas fa-tag me-2"></i>
+                            <strong>النوع:</strong> <span id="previewType">-</span>
+                        </div>
+                        <div class="financial-preview-item">
+                            <i class="fas fa-list me-2"></i>
+                            <strong>الفئة:</strong> <span id="previewCategory">-</span>
+                        </div>
+                        <div class="financial-preview-item">
+                            <i class="fas fa-calendar me-2"></i>
+                            <strong>التاريخ:</strong> <span id="previewDate">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="financial-preview-item">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            <strong>المبلغ:</strong> <span id="previewAmount">-</span>
+                        </div>
+                        <div class="financial-preview-item">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>الوصف:</strong> <span id="previewDescription">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نصائح مالية -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card border-info">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-info"><i class="fas fa-lightbulb me-2"></i>نصائح لإدارة أفضل</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="fas fa-arrow-up me-2"></i>الإيرادات</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>سجل جميع مصادر الدخل</li>
+                            <li><i class="fas fa-check text-success me-2"></i>حدد الفئات بوضوح</li>
+                            <li><i class="fas fa-check text-success me-2"></i>أضف وصفاً تفصيلياً</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-danger"><i class="fas fa-arrow-down me-2"></i>المصروفات</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-danger me-2"></i>تتبع جميع النفقات</li>
+                            <li><i class="fas fa-check text-danger me-2"></i>احتفظ بالإيصالات</li>
+                            <li><i class="fas fa-check text-danger me-2"></i>راجع المصروفات دورياً</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .was-validated .form-control:valid {
+        border-color: #28a745;
+    }
+    
+    .was-validated .form-control:invalid {
+        border-color: #dc3545;
+    }
+    
+    .financial-preview-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .financial-preview-item:last-child {
+        border-bottom: none;
+    }
+    
+    .financial-preview-item i {
+        color: #28a745;
+        width: 20px;
+    }
+    
+    #previewType.income {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    #previewType.expense {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .amount-display {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .amount-display.income {
+        color: #28a745;
+    }
+    
+    .amount-display.expense {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('financialForm');
+        const previewCard = document.getElementById('previewCard');
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('category');
+        
+        // تعيين تاريخ اليوم كافتراضي
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        
+        // فئات الإيرادات والمصروفات
+        const categories = {
+            'إيراد': [
+                'المبيعات',
+                'الخدمات',
+                'الإيجارات',
+                'الاستثمارات',
+                'العمولات',
+                'الفوائد',
+                'أخرى'
+            ],
+            'مصروف': [
+                'الرواتب والأجور',
+                'الصيانة والإصلاح',
+                'الوقود',
+                'التأمين',
+                'الإيجارات',
+                'المرافق (كهرباء، ماء، هاتف)',
+                'المواد الاستهلاكية',
+                'التسويق والإعلان',
+                'الرسوم والضرائب',
+                'أخرى'
+            ]
+        };
+        
+        // تحديث فئات بناءً على النوع المختار
+        typeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            categorySelect.innerHTML = '<option value="">اختر الفئة</option>';
+            
+            if (categories[selectedType]) {
+                categories[selectedType].forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            updatePreview();
+        });
+        
+        // معاينة البيانات أثناء الكتابة
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        });
+        
+        function updatePreview() {
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            const amount = document.getElementById('amount').value;
+            const date = document.getElementById('date').value;
+            const description = document.getElementById('description').value;
+            
+            if (type || category || amount || date) {
+                // تحديث النوع مع التلوين
+                const previewType = document.getElementById('previewType');
+                previewType.textContent = type || '-';
+                previewType.className = type === 'إيراد' ? 'income' : (type === 'مصروف' ? 'expense' : '');
+                
+                document.getElementById('previewCategory').textContent = category || '-';
+                document.getElementById('previewDate').textContent = date || '-';
+                document.getElementById('previewDescription').textContent = description || 'لا يوجد وصف';
+                
+                // تحديث المبلغ مع التلوين والتنسيق
+                const previewAmount = document.getElementById('previewAmount');
+                if (amount) {
+                    const formattedAmount = formatCurrency(amount);
+                    const prefix = type === 'إيراد' ? '+' : (type === 'مصروف' ? '-' : '');
+                    previewAmount.innerHTML = `<span class="amount-display ${type === 'إيراد' ? 'income' : 'expense'}">${prefix}${formattedAmount}</span>`;
+                } else {
+                    previewAmount.textContent = '-';
+                }
+                
+                previewCard.style.display = 'block';
+            } else {
+                previewCard.style.display = 'none';
+            }
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-SA', {
+                style: 'currency',
+                currency: 'SAR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // التحقق من صحة النموذج
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+        
+        // تنسيق المبلغ أثناء الكتابة
+        const amountInput = document.getElementById('amount');
+        amountInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value && value < 0) {
+                this.setCustomValidity('المبلغ يجب أن يكون أكبر من الصفر');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // تأثير التركيز على الحقول
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+        
+        // اقتراحات سريعة للمبالغ الشائعة
+        const commonAmounts = [100, 500, 1000, 5000, 10000];
+        const amountContainer = amountInput.parentElement;
+        
+        const suggestionsDiv = document.createElement('div');
+        suggestionsDiv.className = 'mt-2';
+        suggestionsDiv.innerHTML = '<small class="text-muted">مبالغ شائعة: </small>';
+        
+        commonAmounts.forEach(amount => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-secondary me-1 mb-1';
+            btn.textContent = new Intl.NumberFormat('ar-SA').format(amount);
+            btn.onclick = () => {
+                amountInput.value = amount;
+                updatePreview();
+            };
+            suggestionsDiv.appendChild(btn);
+        });
+        
+        amountContainer.appendChild(suggestionsDiv);
+        
+        // حفظ المسودة في التخزين المحلي
+        function saveDraft() {
+            const draft = {
+                type: document.getElementById('type').value,
+                category: document.getElementById('category').value,
+                amount: document.getElementById('amount').value,
+                date: document.getElementById('date').value,
+                description: document.getElementById('description').value
+            };
+            localStorage.setItem('financialDraft', JSON.stringify(draft));
+        }
+        
+        function loadDraft() {
+            const draft = localStorage.getItem('financialDraft');
+            if (draft) {
+                const data = JSON.parse(draft);
+                document.getElementById('type').value = data.type || '';
+                document.getElementById('amount').value = data.amount || '';
+                document.getElementById('date').value = data.date || today;
+                document.getElementById('description').value = data.description || '';
+                
+                // تحديث الفئات إذا كان النوع محدد
+                if (data.type) {
+                    typeSelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => {
+                        document.getElementById('category').value = data.category || '';
+                        updatePreview();
+                    }, 100);
+                }
+            }
+        }
+        
+        // حفظ المسودة عند التغيير
+        inputs.forEach(input => {
+            input.addEventListener('input', saveDraft);
+        });
+        
+        // تحميل المسودة عند بدء التشغيل
+        loadDraft();
+        
+        // مسح المسودة عند الإرسال الناجح
+        form.addEventListener('submit', function() {
+            if (form.checkValidity()) {
+                localStorage.removeItem('financialDraft');
+            }
+        });
+    });
+</script>
+{% endblock %}

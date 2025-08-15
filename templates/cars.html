@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}السيارات - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إدارة السيارات{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-car me-2"></i>أسطول السيارات</h5>
+                <a href="{{ url_for('add_car') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>إضافة سيارة جديدة
+                </a>
+            </div>
+            <div class="card-body">
+                {% if cars %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>الرقم</th>
+                                    <th>المركبة</th>
+                                    <th>رقم اللوحة</th>
+                                    <th>اللون</th>
+                                    <th>الحالة</th>
+                                    <th>سعر الشراء</th>
+                                    <th>القيمة الحالية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for car in cars %}
+                                <tr>
+                                    <td>{{ car[0] }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="car-icon me-2">
+                                                <i class="fas fa-car"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ car[1] }} {{ car[2] }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ car[3] }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="license-plate">{{ car[4] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="color-circle me-2" style="background-color: {{ get_color_code(car[5]) }}"></div>
+                                            {{ car[5] or 'غير محدد' }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if car[6] == 'متاح' %}
+                                            <span class="badge bg-success">{{ car[6] }}</span>
+                                        {% elif car[6] == 'مستأجر' %}
+                                            <span class="badge bg-warning">{{ car[6] }}</span>
+                                        {% elif car[6] == 'صيانة' %}
+                                            <span class="badge bg-danger">{{ car[6] }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ car[6] }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if car[7] %}
+                                            <strong class="text-primary">{{ "{:,.0f}".format(car[7]) }} ريال</strong>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if car[8] %}
+                                            <strong class="text-success">{{ "{:,.0f}".format(car[8]) }} ريال</strong>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewCar({{ car[0] }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="editCar({{ car[0] }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete({{ car[0] }}, '{{ car[1] }} {{ car[2] }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد سيارات مسجلة</h5>
+                        <p class="text-muted">ابدأ بإضافة سيارة جديدة لعرض البيانات هنا</p>
+                        <a href="{{ url_for('add_car') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>إضافة سيارة جديدة
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات السيارات -->
+{% if cars %}
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-primary">
+            <i class="fas fa-car"></i>
+            <h3>{{ cars|length }}</h3>
+            <p class="mb-0">إجمالي السيارات</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-success">
+            <i class="fas fa-check-circle"></i>
+            <h3>{{ cars|selectattr(6, 'equalto', 'متاح')|list|length }}</h3>
+            <p class="mb-0">السيارات المتاحة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-warning">
+            <i class="fas fa-clock"></i>
+            <h3>{{ cars|selectattr(6, 'equalto', 'مستأجر')|list|length }}</h3>
+            <p class="mb-0">السيارات المستأجرة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-danger">
+            <i class="fas fa-wrench"></i>
+            <h3>{{ cars|selectattr(6, 'equalto', 'صيانة')|list|length }}</h3>
+            <p class="mb-0">في الصيانة</p>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات مالية للسيارات -->
+<div class="row mt-4">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>إجمالي قيمة الشراء</h6>
+            </div>
+            <div class="card-body text-center">
+                <h3 class="text-primary">
+                    {{ "{:,.0f}".format(cars|selectattr(7)|sum(attribute=7)) }} ريال
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>إجمالي القيمة الحالية</h6>
+            </div>
+            <div class="card-body text-center">
+                <h3 class="text-success">
+                    {{ "{:,.0f}".format(cars|selectattr(8)|sum(attribute=8)) }} ريال
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف السيارة <strong id="carName"></strong>؟</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>لا يمكن التراجع عن هذا الإجراء</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">حذف</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .car-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .license-plate {
+        background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .color-circle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        display: inline-block;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(23, 162, 184, 0.1);
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // دالة للحصول على كود اللون
+    function getColorCode(colorName) {
+        const colors = {
+            'أبيض': '#ffffff',
+            'أسود': '#000000',
+            'أحمر': '#dc3545',
+            'أزرق': '#007bff',
+            'أخضر': '#28a745',
+            'أصفر': '#ffc107',
+            'رمادي': '#6c757d',
+            'بني': '#8B4513',
+            'فضي': '#C0C0C0',
+            'ذهبي': '#FFD700'
+        };
+        return colors[colorName] || '#6c757d';
+    }
+    
+    function confirmDelete(carId, carName) {
+        document.getElementById('carName').textContent = carName;
+        document.getElementById('confirmDeleteBtn').href = '/delete_car/' + carId;
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+    
+    function viewCar(carId) {
+        // يمكن إضافة نافذة منبثقة لعرض تفاصيل السيارة
+        alert('عرض تفاصيل السيارة رقم: ' + carId);
+    }
+    
+    function editCar(carId) {
+        // يمكن إضافة صفحة تعديل السيارة
+        alert('تعديل السيارة رقم: ' + carId);
+    }
+    
+    // تأثير البحث السريع
+    function setupSearch() {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control mb-3';
+        searchInput.placeholder = 'البحث في السيارات...';
+        
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody && document.querySelector('table')) {
+            cardBody.insertBefore(searchInput, cardBody.firstChild);
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+    }
+    
+    // فلترة حسب الحالة
+    function setupStatusFilter() {
+        const filterSelect = document.createElement('select');
+        filterSelect.className = 'form-control mb-3';
+        filterSelect.innerHTML = `
+            <option value="">جميع الحالات</option>
+            <option value="متاح">متاح</option>
+            <option value="مستأجر">مستأجر</option>
+            <option value="صيانة">صيانة</option>
+        `;
+        
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody && document.querySelector('table')) {
+            const searchInput = cardBody.querySelector('input');
+            if (searchInput) {
+                cardBody.insertBefore(filterSelect, searchInput.nextSibling);
+            } else {
+                cardBody.insertBefore(filterSelect, cardBody.firstChild);
+            }
+            
+            filterSelect.addEventListener('change', function() {
+                const selectedStatus = this.value;
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    if (selectedStatus === '') {
+                        row.style.display = '';
+                    } else {
+                        const statusCell = row.querySelector('td:nth-child(5)');
+                        const statusText = statusCell.textContent.trim();
+                        row.style.display = statusText === selectedStatus ? '' : 'none';
+                    }
+                });
+            });
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        setupSearch();
+        setupStatusFilter();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}بيانات التسليم - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-hand-holding me-2"></i>بيانات التسليم</h2>
+            <p class="text-muted">تسجيل عملية تسليم الموظف للسيارة وإخلاء عهدته</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-search me-2"></i>البحث عن الموظف</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="deliveryForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="employee_number" class="form-label">الرقم الوظيفي *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="employee_number" 
+                                               name="employee_number" placeholder="أدخل الرقم الوظيفي" required>
+                                        <button type="button" class="btn btn-outline-primary" id="searchBtn">
+                                            <i class="fas fa-search"></i> بحث
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="return_date" class="form-label">تاريخ التسليم *</label>
+                                    <input type="date" class="form-control" id="return_date" 
+                                           name="return_date" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- معلومات الموظف والسيارة -->
+                        <div id="employeeInfo" class="d-none">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-user-check me-2"></i>معلومات الموظف</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>الاسم:</strong> <span id="employeeName"></span></p>
+                                        <p><strong>المنصب:</strong> <span id="employeePosition"></span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>القسم:</strong> <span id="employeeDepartment"></span></p>
+                                        <p><strong>تاريخ الاستلام:</strong> <span id="custodyDate"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-car me-2"></i>معلومات السيارة المُسلمة</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>الماركة والموديل:</strong> <span id="carBrandModel"></span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>رقم اللوحة:</strong> <span id="carPlate"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="noEmployeeInfo" class="d-none">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                لا توجد عهدة نشطة لهذا الموظف أو الرقم الوظيفي غير صحيح
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">ملاحظات التسليم</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                      placeholder="أي ملاحظات حول حالة السيارة عند التسليم، الأضرار، الصيانة المطلوبة، إلخ..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>إعادة تعيين
+                            </button>
+                            <button type="submit" class="btn btn-success" id="submitBtn" disabled>
+                                <i class="fas fa-check me-2"></i>تأكيد التسليم
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- تعليمات -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>تعليمات</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="list-unstyled">
+                        <li class="mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">1</span>
+                            أدخل الرقم الوظيفي للموظف واضغط "بحث"
+                        </li>
+                        <li class="mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">2</span>
+                            تأكد من صحة بيانات الموظف والسيارة
+                        </li>
+                        <li class="mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">3</span>
+                            حدد تاريخ التسليم
+                        </li>
+                        <li class="mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">4</span>
+                            أضف ملاحظات حول حالة السيارة
+                        </li>
+                        <li class="mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">5</span>
+                            اضغط "تأكيد التسليم" لإتمام العملية
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie me-2"></i>إحصائيات العهد</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-success" id="activeCustodies">-</h4>
+                                <small class="text-muted">عهد نشطة</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info" id="returnedCustodies">-</h4>
+                            <small class="text-muted">عهد مُسلمة</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تعيين التاريخ الحالي
+    const dateInput = document.getElementById('return_date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    const searchBtn = document.getElementById('searchBtn');
+    const employeeNumberInput = document.getElementById('employee_number');
+    const submitBtn = document.getElementById('submitBtn');
+    const employeeInfo = document.getElementById('employeeInfo');
+    const noEmployeeInfo = document.getElementById('noEmployeeInfo');
+    
+    // البحث عن الموظف
+    searchBtn.addEventListener('click', searchEmployee);
+    employeeNumberInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchEmployee();
+        }
+    });
+    
+    function searchEmployee() {
+        const employeeNumber = employeeNumberInput.value.trim();
+        
+        if (!employeeNumber) {
+            alert('يرجى إدخال الرقم الوظيفي');
+            return;
+        }
+        
+        // إظهار مؤشر التحميل
+        searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+        searchBtn.disabled = true;
+        
+        // البحث عن الموظف
+        fetch(`/api/employee/${employeeNumber}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found && data.car) {
+                    // عرض معلومات الموظف والسيارة
+                    document.getElementById('employeeName').textContent = data.employee.name;
+                    document.getElementById('employeePosition').textContent = data.employee.position;
+                    document.getElementById('employeeDepartment').textContent = data.employee.department;
+                    document.getElementById('custodyDate').textContent = data.car.custody_date;
+                    document.getElementById('carBrandModel').textContent = `${data.car.brand} ${data.car.model}`;
+                    document.getElementById('carPlate').textContent = data.car.license_plate;
+                    
+                    employeeInfo.classList.remove('d-none');
+                    noEmployeeInfo.classList.add('d-none');
+                    submitBtn.disabled = false;
+                } else {
+                    // لا توجد عهدة نشطة
+                    employeeInfo.classList.add('d-none');
+                    noEmployeeInfo.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في البحث:', error);
+                alert('حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.');
+                employeeInfo.classList.add('d-none');
+                noEmployeeInfo.classList.remove('d-none');
+                submitBtn.disabled = true;
+            })
+            .finally(() => {
+                // إعادة تعيين زر البحث
+                searchBtn.innerHTML = '<i class="fas fa-search"></i> بحث';
+                searchBtn.disabled = false;
+            });
+    }
+    
+    // تحميل الإحصائيات
+    loadStatistics();
+    
+    function loadStatistics() {
+        fetch('/api/custody_stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('activeCustodies').textContent = data.active || 0;
+                document.getElementById('returnedCustodies').textContent = data.returned || 0;
+            })
+            .catch(error => {
+                console.error('خطأ في تحميل الإحصائيات:', error);
+            });
+    }
+});
+
+function resetForm() {
+    if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟')) {
+        document.getElementById('deliveryForm').reset();
+        document.getElementById('employeeInfo').classList.add('d-none');
+        document.getElementById('noEmployeeInfo').classList.add('d-none');
+        document.getElementById('submitBtn').disabled = true;
+        
+        // إعادة تعيين التاريخ
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('return_date').value = today;
+    }
+}
+</script>
+{% endblock %}

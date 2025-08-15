@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام إدارة شامل{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* القائمة الجانبية */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.2rem;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .sidebar-header h3 {
+            opacity: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+        }
+        
+        .sidebar-menu li {
+            margin: 5px 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .sidebar-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .sidebar-menu i {
+            font-size: 1.2rem;
+            width: 25px;
+            text-align: center;
+            margin-left: 15px;
+        }
+        
+        .sidebar-menu span {
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .sidebar-menu span {
+            opacity: 0;
+        }
+        
+        /* تنسيق زر تسجيل الخروج */
+        .sidebar-menu li.mt-auto {
+            margin-top: auto !important;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 10px;
+        }
+        
+        .sidebar-menu a.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b !important;
+        }
+        
+        /* تنسيق معلومات المستخدم */
+        .user-info {
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .user-info {
+            opacity: 0;
+        }
+        
+        /* تنسيق القوائم المنسدلة */
+        .dropdown-menu-item .dropdown-toggle {
+            position: relative;
+        }
+        
+        .dropdown-arrow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .dropdown-toggle[aria-expanded="true"] .dropdown-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        .submenu {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin: 5px 10px;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .submenu li {
+            margin: 0;
+        }
+        
+        .submenu a {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            margin: 2px;
+            display: block;
+        }
+        
+        .submenu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .submenu i {
+            width: 16px;
+            margin-left: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .sidebar.collapsed .submenu {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .dropdown-arrow {
+            display: none;
+        }
+        
+        /* المحتوى الرئيسي */
+        .main-content {
+            margin-right: 280px;
+            transition: margin-right 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        .main-content.expanded {
+            margin-right: 80px;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 30px;
+        }
+        
+        .content-area {
+            padding: 30px;
+        }
+        
+        /* البطاقات */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+        
+        /* الأزرار */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        
+        .btn-success {
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        
+        /* الجداول */
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        /* النماذج */
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        /* الإشعارات */
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        /* إحصائيات سريعة */
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-card i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        /* تأثيرات متحركة */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        /* استجابة للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- القائمة الجانبية -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>RASHID INDUSTRIAL</h3>
+            {% if session.logged_in %}
+            <div class="user-info mt-3">
+                <i class="fas fa-user-circle fa-2x text-white mb-2"></i>
+                <div class="text-white small">{{ session.username }}</div>
+            </div>
+            {% endif %}
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span>الواجهة الرئيسية</span>
+                </a>
+            </li>
+            
+            <!-- الخزينة -->
+            <li>
+                <a href="{{ url_for('treasury') }}" class="{% if request.endpoint == 'treasury' %}active{% endif %}">
+                    <i class="fas fa-cash-register"></i>
+                    <span>الخزينة</span>
+                </a>
+            </li>
+            
+            <!-- إدارة السيارات - قائمة منسدلة -->
+            <li class="dropdown-menu-item">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#carsDropdown">
+                    <i class="fas fa-car"></i>
+                    <span>إدارة السيارات</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </a>
+                <ul class="collapse submenu" id="carsDropdown">
+                    <li><a href="{{ url_for('cars') }}"><i class="fas fa-list"></i> إدارة السيارات</a></li>
+                    <li><a href="{{ url_for('car_entry') }}"><i class="fas fa-plus-circle"></i> إدخال السيارات</a></li>
+                    <li><a href="{{ url_for('car_delivery') }}"><i class="fas fa-hand-holding"></i> بيانات التسليم</a></li>
+                    <li><a href="{{ url_for('car_receipt') }}"><i class="fas fa-handshake"></i> بيانات الاستلام</a></li>
+                </ul>
+            </li>
+            
+            <!-- إدخال الموظفين -->
+            <li>
+                <a href="{{ url_for('employees') }}" class="{% if request.endpoint in ['employees', 'add_employee'] %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>إدخال الموظفين</span>
+                </a>
+            </li>
+            
+            <!-- إدخال المصروفات -->
+            <li>
+                <a href="{{ url_for('expenses') }}" class="{% if request.endpoint == 'expenses' %}active{% endif %}">
+                    <i class="fas fa-receipt"></i>
+                    <span>إدخال المصروفات</span>
+                </a>
+            </li>
+            
+            <!-- التقارير -->
+            <li>
+                <a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </li>
+            
+            <!-- الإعدادات -->
+            <li>
+                <a href="{{ url_for('settings') }}" class="{% if request.endpoint == 'settings' %}active{% endif %}">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+            </li>
+            {% if session.logged_in %}
+            <li class="mt-auto">
+                <a href="{{ url_for('logout') }}" class="text-danger" onclick="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content" id="mainContent">
+        <nav class="navbar">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h4 class="mb-0">{% block page_title %}نظام إدارة شامل{% endblock %}</h4>
+                <div>
+                    <span class="text-muted">مرحباً بك في نظام الإدارة</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-area">
+            <!-- عرض الرسائل -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        // تفعيل القائمة الجانبية التفاعلية
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        
+        sidebar.addEventListener('mouseenter', function() {
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('expanded');
+        });
+        
+        sidebar.addEventListener('mouseleave', function() {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        });
+        
+        // تأثير الظهور التدريجي
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.card, .stats-card');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('fade-in-up');
+                }, index * 100);
+            });
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

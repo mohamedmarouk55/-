@@ -1,0 +1,585 @@
+{% extends "base.html" %}
+
+{% block title %}التقارير - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-chart-bar me-2"></i>التقارير والإحصائيات</h2>
+            <p class="text-muted">تقارير شاملة لجميع أنشطة النظام</p>
+        </div>
+    </div>
+
+    <!-- أنواع التقارير -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card h-100 report-card" onclick="showReport('employees')">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h5>تقرير الموظفين</h5>
+                    <p class="text-muted">إحصائيات وبيانات الموظفين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 report-card" onclick="showReport('cars')">
+                <div class="card-body text-center">
+                    <i class="fas fa-car fa-3x text-success mb-3"></i>
+                    <h5>تقرير السيارات</h5>
+                    <p class="text-muted">حالة الأسطول والعهد</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 report-card" onclick="showReport('financial')">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                    <h5>التقرير المالي</h5>
+                    <p class="text-muted">الإيرادات والمصروفات</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 report-card" onclick="showReport('treasury')">
+                <div class="card-body text-center">
+                    <i class="fas fa-cash-register fa-3x text-info mb-3"></i>
+                    <h5>تقرير الخزينة</h5>
+                    <p class="text-muted">حركة الخزينة والأرصدة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- منطقة عرض التقارير -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 id="reportTitle"><i class="fas fa-chart-bar me-2"></i>اختر نوع التقرير</h5>
+                    <div class="btn-group" id="reportActions" style="display: none;">
+                        <button class="btn btn-outline-primary btn-sm" onclick="printReport()">
+                            <i class="fas fa-print me-1"></i>طباعة
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="exportReport()">
+                            <i class="fas fa-download me-1"></i>تصدير
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="reportContent">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-chart-bar fa-4x mb-3"></i>
+                            <h4>مرحباً بك في قسم التقارير</h4>
+                            <p>اختر نوع التقرير من الأعلى لعرض البيانات والإحصائيات</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة فلترة التقارير -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">فلترة التقرير</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="dateFrom" class="form-label">من تاريخ</label>
+                    <input type="date" class="form-control" id="dateFrom">
+                </div>
+                <div class="mb-3">
+                    <label for="dateTo" class="form-label">إلى تاريخ</label>
+                    <input type="date" class="form-control" id="dateTo">
+                </div>
+                <div class="mb-3" id="additionalFilters">
+                    <!-- فلاتر إضافية حسب نوع التقرير -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="applyFilters()">تطبيق الفلاتر</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.report-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.report-card.active {
+    border-color: #007bff;
+    background-color: #f8f9ff;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+@media print {
+    .btn, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let currentReportType = null;
+let currentChart = null;
+
+function showReport(reportType) {
+    // إزالة التحديد السابق
+    document.querySelectorAll('.report-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // تحديد البطاقة الحالية
+    event.currentTarget.classList.add('active');
+    
+    currentReportType = reportType;
+    document.getElementById('reportActions').style.display = 'block';
+    
+    // تحديث عنوان التقرير
+    const titles = {
+        'employees': 'تقرير الموظفين',
+        'cars': 'تقرير السيارات',
+        'financial': 'التقرير المالي',
+        'treasury': 'تقرير الخزينة'
+    };
+    
+    document.getElementById('reportTitle').innerHTML = 
+        `<i class="fas fa-chart-bar me-2"></i>${titles[reportType]}`;
+    
+    // تحميل التقرير
+    loadReport(reportType);
+}
+
+function loadReport(reportType) {
+    const reportContent = document.getElementById('reportContent');
+    reportContent.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><br>جاري تحميل التقرير...</div>';
+    
+    // محاكاة تحميل البيانات
+    setTimeout(() => {
+        switch(reportType) {
+            case 'employees':
+                showEmployeesReport();
+                break;
+            case 'cars':
+                showCarsReport();
+                break;
+            case 'financial':
+                showFinancialReport();
+                break;
+            case 'treasury':
+                showTreasuryReport();
+                break;
+        }
+    }, 1000);
+}
+
+function showEmployeesReport() {
+    const content = `
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>25</h3>
+                        <p class="mb-0">إجمالي الموظفين</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>23</h3>
+                        <p class="mb-0">موظف نشط</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3>85,000</h3>
+                        <p class="mb-0">إجمالي الرواتب</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3>3,700</h3>
+                        <p class="mb-0">متوسط الراتب</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>توزيع الموظفين حسب القسم</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>توزيع الرواتب</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salaryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('reportContent').innerHTML = content;
+    
+    // رسم المخططات
+    createDepartmentChart();
+    createSalaryChart();
+}
+
+function showCarsReport() {
+    const content = `
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>15</h3>
+                        <p class="mb-0">إجمالي السيارات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>8</h3>
+                        <p class="mb-0">سيارات متاحة</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3>5</h3>
+                        <p class="mb-0">سيارات مستأجرة</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3>2</h3>
+                        <p class="mb-0">سيارات في الصيانة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>حالة السيارات</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="carStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>توزيع الماركات</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="carBrandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('reportContent').innerHTML = content;
+    
+    createCarStatusChart();
+    createCarBrandChart();
+}
+
+function showFinancialReport() {
+    const content = `
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>150,000</h3>
+                        <p class="mb-0">إجمالي الإيرادات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3>120,000</h3>
+                        <p class="mb-0">إجمالي المصروفات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>30,000</h3>
+                        <p class="mb-0">صافي الربح</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3>20%</h3>
+                        <p class="mb-0">هامش الربح</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>الأداء المالي الشهري</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('reportContent').innerHTML = content;
+    
+    createFinancialChart();
+}
+
+function showTreasuryReport() {
+    const content = `
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>75,000</h3>
+                        <p class="mb-0">إجمالي الإيداعات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3>45,000</h3>
+                        <p class="mb-0">إجمالي السحوبات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>30,000</h3>
+                        <p class="mb-0">الرصيد الحالي</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>حركة الخزينة</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="treasuryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('reportContent').innerHTML = content;
+    
+    createTreasuryChart();
+}
+
+// وظائف إنشاء المخططات
+function createDepartmentChart() {
+    const ctx = document.getElementById('departmentChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['الإدارة', 'المحاسبة', 'النقل', 'الصيانة'],
+            datasets: [{
+                data: [5, 8, 7, 5],
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createSalaryChart() {
+    const ctx = document.getElementById('salaryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['أقل من 3000', '3000-5000', '5000-8000', 'أكثر من 8000'],
+            datasets: [{
+                label: 'عدد الموظفين',
+                data: [3, 8, 10, 4],
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createCarStatusChart() {
+    const ctx = document.getElementById('carStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['متاح', 'مستأجر', 'صيانة'],
+            datasets: [{
+                data: [8, 5, 2],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createCarBrandChart() {
+    const ctx = document.getElementById('carBrandChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['تويوتا', 'هوندا', 'نيسان', 'هيونداي'],
+            datasets: [{
+                label: 'عدد السيارات',
+                data: [6, 4, 3, 2],
+                backgroundColor: '#17a2b8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createFinancialChart() {
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+            datasets: [{
+                label: 'الإيرادات',
+                data: [25000, 30000, 28000, 35000, 32000, 38000],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)'
+            }, {
+                label: 'المصروفات',
+                data: [20000, 22000, 25000, 28000, 26000, 30000],
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createTreasuryChart() {
+    const ctx = document.getElementById('treasuryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3', 'الأسبوع 4'],
+            datasets: [{
+                label: 'الرصيد',
+                data: [25000, 30000, 28000, 30000],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function printReport() {
+    window.print();
+}
+
+function exportReport() {
+    alert('سيتم تطوير وظيفة التصدير قريباً');
+}
+
+function applyFilters() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    
+    // تطبيق الفلاتر وإعادة تحميل التقرير
+    if (currentReportType) {
+        loadReport(currentReportType);
+    }
+    
+    // إغلاق النافذة
+    const modal = bootstrap.Modal.getInstance(document.getElementById('filterModal'));
+    modal.hide();
+}
+</script>
+{% endblock %}

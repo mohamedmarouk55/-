@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة سيارة جديدة - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إضافة سيارة جديدة{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-car me-2"></i>إضافة سيارة جديدة</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="carForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="brand" class="form-label">الماركة <span class="text-danger">*</span></label>
+                            <select class="form-control" id="brand" name="brand" required>
+                                <option value="">اختر الماركة</option>
+                                <option value="تويوتا">تويوتا</option>
+                                <option value="هوندا">هوندا</option>
+                                <option value="نيسان">نيسان</option>
+                                <option value="هيونداي">هيونداي</option>
+                                <option value="كيا">كيا</option>
+                                <option value="مازدا">مازدا</option>
+                                <option value="ميتسوبيشي">ميتسوبيشي</option>
+                                <option value="فورد">فورد</option>
+                                <option value="شيفروليه">شيفروليه</option>
+                                <option value="بي إم دبليو">بي إم دبليو</option>
+                                <option value="مرسيدس">مرسيدس</option>
+                                <option value="أودي">أودي</option>
+                                <option value="لكزس">لكزس</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار الماركة</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="model" class="form-label">الموديل <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="model" name="model" required placeholder="مثال: كامري، أكورد، التيما">
+                            <div class="invalid-feedback">يرجى إدخال الموديل</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="year" class="form-label">سنة الصنع <span class="text-danger">*</span></label>
+                            <select class="form-control" id="year" name="year" required>
+                                <option value="">اختر السنة</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار سنة الصنع</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="license_plate" class="form-label">رقم اللوحة <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="license_plate" name="license_plate" required placeholder="مثال: أ ب ج 1234">
+                            <div class="invalid-feedback">يرجى إدخال رقم اللوحة</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="color" class="form-label">اللون</label>
+                            <select class="form-control" id="color" name="color">
+                                <option value="">اختر اللون</option>
+                                <option value="أبيض">أبيض</option>
+                                <option value="أسود">أسود</option>
+                                <option value="أحمر">أحمر</option>
+                                <option value="أزرق">أزرق</option>
+                                <option value="أخضر">أخضر</option>
+                                <option value="أصفر">أصفر</option>
+                                <option value="رمادي">رمادي</option>
+                                <option value="بني">بني</option>
+                                <option value="فضي">فضي</option>
+                                <option value="ذهبي">ذهبي</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">الحالة <span class="text-danger">*</span></label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="متاح">متاح</option>
+                                <option value="مستأجر">مستأجر</option>
+                                <option value="صيانة">صيانة</option>
+                                <option value="غير متاح">غير متاح</option>
+                            </select>
+                            <div class="invalid-feedback">يرجى اختيار الحالة</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="purchase_price" class="form-label">سعر الشراء (ريال)</label>
+                            <input type="number" class="form-control" id="purchase_price" name="purchase_price" min="0" step="0.01" placeholder="0.00">
+                            <div class="form-text">اتركه فارغاً إذا لم يكن معروفاً</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="current_value" class="form-label">القيمة الحالية (ريال)</label>
+                            <input type="number" class="form-control" id="current_value" name="current_value" min="0" step="0.01" placeholder="0.00">
+                            <div class="form-text">القيمة التقديرية الحالية للسيارة</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('cars') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-undo me-2"></i>إعادة تعيين
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>حفظ السيارة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- معاينة البيانات -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card" id="previewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>معاينة السيارة</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="car-preview-item">
+                            <i class="fas fa-car me-2"></i>
+                            <strong>المركبة:</strong> <span id="previewCar">-</span>
+                        </div>
+                        <div class="car-preview-item">
+                            <i class="fas fa-calendar me-2"></i>
+                            <strong>السنة:</strong> <span id="previewYear">-</span>
+                        </div>
+                        <div class="car-preview-item">
+                            <i class="fas fa-id-card me-2"></i>
+                            <strong>رقم اللوحة:</strong> <span id="previewPlate">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="car-preview-item">
+                            <i class="fas fa-palette me-2"></i>
+                            <strong>اللون:</strong> <span id="previewColor">-</span>
+                        </div>
+                        <div class="car-preview-item">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>الحالة:</strong> <span id="previewStatus">-</span>
+                        </div>
+                        <div class="car-preview-item">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            <strong>سعر الشراء:</strong> <span id="previewPrice">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+    
+    .was-validated .form-control:valid {
+        border-color: #28a745;
+    }
+    
+    .was-validated .form-control:invalid {
+        border-color: #dc3545;
+    }
+    
+    .car-preview-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .car-preview-item:last-child {
+        border-bottom: none;
+    }
+    
+    .car-preview-item i {
+        color: #17a2b8;
+        width: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('carForm');
+        const previewCard = document.getElementById('previewCard');
+        
+        // ملء قائمة السنوات
+        const yearSelect = document.getElementById('year');
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= 1980; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // معاينة البيانات أثناء الكتابة
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        });
+        
+        function updatePreview() {
+            const brand = document.getElementById('brand').value;
+            const model = document.getElementById('model').value;
+            const year = document.getElementById('year').value;
+            const licensePlate = document.getElementById('license_plate').value;
+            const color = document.getElementById('color').value;
+            const status = document.getElementById('status').value;
+            const purchasePrice = document.getElementById('purchase_price').value;
+            
+            if (brand || model || year || licensePlate) {
+                document.getElementById('previewCar').textContent = 
+                    (brand && model) ? `${brand} ${model}` : (brand || model || '-');
+                document.getElementById('previewYear').textContent = year || '-';
+                document.getElementById('previewPlate').textContent = licensePlate || '-';
+                document.getElementById('previewColor').textContent = color || '-';
+                document.getElementById('previewStatus').textContent = status || '-';
+                document.getElementById('previewPrice').textContent = 
+                    purchasePrice ? formatCurrency(purchasePrice) : '-';
+                
+                previewCard.style.display = 'block';
+            } else {
+                previewCard.style.display = 'none';
+            }
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-SA', {
+                style: 'currency',
+                currency: 'SAR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // التحقق من صحة النموذج
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+        
+        // التحقق من رقم اللوحة
+        const licensePlateInput = document.getElementById('license_plate');
+        licensePlateInput.addEventListener('input', function() {
+            const plate = this.value.trim();
+            if (plate.length > 0 && plate.length < 3) {
+                this.setCustomValidity('رقم اللوحة قصير جداً');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // تحديث القيمة الحالية تلقائياً عند إدخال سعر الشراء
+        const purchasePriceInput = document.getElementById('purchase_price');
+        const currentValueInput = document.getElementById('current_value');
+        
+        purchasePriceInput.addEventListener('input', function() {
+            const purchasePrice = parseFloat(this.value);
+            if (purchasePrice && !currentValueInput.value) {
+                // تقدير القيمة الحالية بناءً على العمر (تقدير تقريبي)
+                const year = parseInt(document.getElementById('year').value);
+                if (year) {
+                    const currentYear = new Date().getFullYear();
+                    const age = currentYear - year;
+                    const depreciationRate = Math.min(age * 0.1, 0.7); // 10% سنوياً حتى 70%
+                    const estimatedValue = purchasePrice * (1 - depreciationRate);
+                    currentValueInput.value = Math.round(estimatedValue);
+                }
+            }
+        });
+        
+        // تأثير التركيز على الحقول
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+        
+        // تحديث خيارات الموديل بناءً على الماركة
+        const brandSelect = document.getElementById('brand');
+        const modelInput = document.getElementById('model');
+        
+        const brandModels = {
+            'تويوتا': ['كامري', 'كورولا', 'أفالون', 'يارس', 'راف 4', 'هايلاندر', 'برادو', 'لاند كروزر'],
+            'هوندا': ['أكورد', 'سيفيك', 'سي آر في', 'بايلوت', 'أوديسي'],
+            'نيسان': ['التيما', 'سنترا', 'مكسيما', 'باترول', 'إكس تريل'],
+            'هيونداي': ['إلنترا', 'سوناتا', 'توسان', 'سانتا في', 'أكسنت'],
+            'كيا': ['أوبتيما', 'سيراتو', 'سورينتو', 'سبورتاج', 'ريو']
+        };
+        
+        brandSelect.addEventListener('change', function() {
+            const selectedBrand = this.value;
+            if (brandModels[selectedBrand]) {
+                // تحويل حقل الموديل إلى قائمة منسدلة
+                const modelSelect = document.createElement('select');
+                modelSelect.className = modelInput.className;
+                modelSelect.id = modelInput.id;
+                modelSelect.name = modelInput.name;
+                modelSelect.required = modelInput.required;
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'اختر الموديل';
+                modelSelect.appendChild(defaultOption);
+                
+                brandModels[selectedBrand].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+                
+                const otherOption = document.createElement('option');
+                otherOption.value = 'أخرى';
+                otherOption.textContent = 'أخرى';
+                modelSelect.appendChild(otherOption);
+                
+                modelInput.parentNode.replaceChild(modelSelect, modelInput);
+                modelSelect.addEventListener('change', updatePreview);
+            }
+        });
+    });
+</script>
+{% endblock %}

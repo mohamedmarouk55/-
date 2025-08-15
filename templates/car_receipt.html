@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}بيانات الاستلام - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-handshake me-2"></i>بيانات الاستلام</h2>
+            <p class="text-muted">تسجيل عملية استلام الموظف لسيارة جديدة</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus-circle me-2"></i>تسجيل عهدة جديدة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="receiptForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="employee_number" class="form-label">الموظف *</label>
+                                    <select class="form-select" id="employee_number" name="employee_number" required>
+                                        <option value="">اختر الموظف</option>
+                                        {% for employee in employees %}
+                                        <option value="{{ employee[0] }}">{{ employee[1] }} ({{ employee[0] }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="car_id" class="form-label">السيارة *</label>
+                                    <select class="form-select" id="car_id" name="car_id" required>
+                                        <option value="">اختر السيارة</option>
+                                        {% for car in available_cars %}
+                                        <option value="{{ car[0] }}">{{ car[1] }} {{ car[2] }} - {{ car[3] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="custody_date" class="form-label">تاريخ الاستلام *</label>
+                                    <input type="date" class="form-control" id="custody_date" 
+                                           name="custody_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="expected_return" class="form-label">تاريخ الإرجاع المتوقع</label>
+                                    <input type="date" class="form-control" id="expected_return" 
+                                           name="expected_return">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- معاينة البيانات -->
+                        <div id="previewSection" class="d-none">
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-eye me-2"></i>معاينة العهدة</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>الموظف:</strong> <span id="previewEmployee"></span></p>
+                                        <p><strong>السيارة:</strong> <span id="previewCar"></span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>تاريخ الاستلام:</strong> <span id="previewDate"></span></p>
+                                        <p><strong>الإرجاع المتوقع:</strong> <span id="previewReturn"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">ملاحظات الاستلام</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                      placeholder="حالة السيارة عند الاستلام، التعليمات الخاصة، المسؤوليات، إلخ..."></textarea>
+                        </div>
+
+                        <!-- شروط العهدة -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-clipboard-list me-2"></i>شروط العهدة</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="condition1" required>
+                                    <label class="form-check-label" for="condition1">
+                                        الموظف مسؤول عن السيارة وصيانتها الدورية
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="condition2" required>
+                                    <label class="form-check-label" for="condition2">
+                                        يجب إرجاع السيارة في نفس الحالة التي استُلمت بها
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="condition3" required>
+                                    <label class="form-check-label" for="condition3">
+                                        الإبلاغ فوراً عن أي أضرار أو مشاكل فنية
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="condition4" required>
+                                    <label class="form-check-label" for="condition4">
+                                        عدم استخدام السيارة لأغراض شخصية دون إذن
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>إعادة تعيين
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-handshake me-2"></i>تأكيد الاستلام
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- إحصائيات -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar me-2"></i>إحصائيات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary">{{ employees|length }}</h4>
+                                <small class="text-muted">موظف نشط</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ available_cars|length }}</h4>
+                            <small class="text-muted">سيارة متاحة</small>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ (available_cars|length / (available_cars|length + 1) * 100) if available_cars else 0 }}%">
+                        </div>
+                    </div>
+                    <small class="text-muted">نسبة السيارات المتاحة</small>
+                </div>
+            </div>
+
+            <!-- السيارات المتاحة -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-car me-2"></i>السيارات المتاحة</h5>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    {% for car in available_cars %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                        <div>
+                            <strong>{{ car[1] }} {{ car[2] }}</strong>
+                            <br>
+                            <small class="text-muted">{{ car[3] }}</small>
+                        </div>
+                        <span class="badge bg-success">متاح</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-car fa-2x mb-2"></i>
+                        <br>لا توجد سيارات متاحة
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- تذكيرات -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-bell me-2"></i>تذكيرات</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            تأكد من حالة السيارة قبل التسليم
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            وثق أي أضرار موجودة مسبقاً
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            تأكد من وجود الوثائق المطلوبة
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            حدد تاريخ الإرجاع المتوقع
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تعيين التاريخ الحالي
+    const custodyDateInput = document.getElementById('custody_date');
+    const today = new Date().toISOString().split('T')[0];
+    custodyDateInput.value = today;
+    
+    // عناصر النموذج
+    const employeeSelect = document.getElementById('employee_number');
+    const carSelect = document.getElementById('car_id');
+    const custodyDate = document.getElementById('custody_date');
+    const expectedReturn = document.getElementById('expected_return');
+    const previewSection = document.getElementById('previewSection');
+    
+    // تحديث المعاينة
+    function updatePreview() {
+        const employeeText = employeeSelect.options[employeeSelect.selectedIndex]?.text || '';
+        const carText = carSelect.options[carSelect.selectedIndex]?.text || '';
+        const custodyDateValue = custodyDate.value;
+        const expectedReturnValue = expectedReturn.value || 'غير محدد';
+        
+        if (employeeText && carText && custodyDateValue) {
+            document.getElementById('previewEmployee').textContent = employeeText;
+            document.getElementById('previewCar').textContent = carText;
+            document.getElementById('previewDate').textContent = custodyDateValue;
+            document.getElementById('previewReturn').textContent = expectedReturnValue;
+            previewSection.classList.remove('d-none');
+        } else {
+            previewSection.classList.add('d-none');
+        }
+    }
+    
+    // ربط الأحداث
+    employeeSelect.addEventListener('change', updatePreview);
+    carSelect.addEventListener('change', updatePreview);
+    custodyDate.addEventListener('change', updatePreview);
+    expectedReturn.addEventListener('change', updatePreview);
+    
+    // تحديد تاريخ الإرجاع المتوقع تلقائياً (بعد شهر)
+    custodyDate.addEventListener('change', function() {
+        if (this.value && !expectedReturn.value) {
+            const custodyDateObj = new Date(this.value);
+            custodyDateObj.setMonth(custodyDateObj.getMonth() + 1);
+            expectedReturn.value = custodyDateObj.toISOString().split('T')[0];
+            updatePreview();
+        }
+    });
+    
+    // التحقق من الشروط قبل الإرسال
+    const form = document.getElementById('receiptForm');
+    form.addEventListener('submit', function(e) {
+        const conditions = ['condition1', 'condition2', 'condition3', 'condition4'];
+        const unchecked = conditions.filter(id => !document.getElementById(id).checked);
+        
+        if (unchecked.length > 0) {
+            e.preventDefault();
+            alert('يجب الموافقة على جميع شروط العهدة قبل المتابعة');
+            return false;
+        }
+        
+        // تأكيد الإرسال
+        if (!confirm('هل أنت متأكد من تسجيل هذه العهدة؟')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+
+function resetForm() {
+    if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟')) {
+        document.getElementById('receiptForm').reset();
+        document.getElementById('previewSection').classList.add('d-none');
+        
+        // إعادة تعيين التاريخ
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('custody_date').value = today;
+    }
+}
+</script>
+{% endblock %}

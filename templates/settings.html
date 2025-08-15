@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+
+{% block title %}الإعدادات - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-cog me-2"></i>إعدادات النظام</h2>
+            <p class="text-muted">إدارة إعدادات النظام والتخصيصات</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- قائمة الإعدادات -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list me-2"></i>أقسام الإعدادات</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#company" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                        <i class="fas fa-building me-2"></i>معلومات الشركة
+                    </a>
+                    <a href="#system" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-desktop me-2"></i>إعدادات النظام
+                    </a>
+                    <a href="#users" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-users-cog me-2"></i>إدارة المستخدمين
+                    </a>
+                    <a href="#backup" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-database me-2"></i>النسخ الاحتياطي
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-bell me-2"></i>الإشعارات
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-shield-alt me-2"></i>الأمان
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- معلومات الشركة -->
+                <div class="tab-pane fade show active" id="company">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-building me-2"></i>معلومات الشركة</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="companyForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="company_name" class="form-label">اسم الشركة</label>
+                                            <input type="text" class="form-control" id="company_name" name="company_name" 
+                                                   value="{{ settings.get('company_name', {}).get('value', 'RASHID INDUSTRIAL CO.') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="company_phone" class="form-label">هاتف الشركة</label>
+                                            <input type="tel" class="form-control" id="company_phone" name="company_phone" 
+                                                   value="{{ settings.get('company_phone', {}).get('value', '+966501234567') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="company_address" class="form-label">عنوان الشركة</label>
+                                    <textarea class="form-control" id="company_address" name="company_address" rows="3">{{ settings.get('company_address', {}).get('value', 'الرياض، المملكة العربية السعودية') }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="company_email" class="form-label">البريد الإلكتروني</label>
+                                            <input type="email" class="form-control" id="company_email" name="company_email" 
+                                                   value="{{ settings.get('company_email', {}).get('value', 'info@rashid.com') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="tax_number" class="form-label">الرقم الضريبي</label>
+                                            <input type="text" class="form-control" id="tax_number" name="tax_number" 
+                                                   value="{{ settings.get('tax_number', {}).get('value', '') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إعدادات النظام -->
+                <div class="tab-pane fade" id="system">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-desktop me-2"></i>إعدادات النظام</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="systemForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="currency" class="form-label">العملة</label>
+                                            <select class="form-select" id="currency" name="currency">
+                                                <option value="SAR" {{ 'selected' if settings.get('currency', {}).get('value') == 'SAR' else '' }}>ريال سعودي (SAR)</option>
+                                                <option value="USD" {{ 'selected' if settings.get('currency', {}).get('value') == 'USD' else '' }}>دولار أمريكي (USD)</option>
+                                                <option value="EUR" {{ 'selected' if settings.get('currency', {}).get('value') == 'EUR' else '' }}>يورو (EUR)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="tax_rate" class="form-label">معدل الضريبة المضافة (%)</label>
+                                            <input type="number" class="form-control" id="tax_rate" name="tax_rate" 
+                                                   step="0.01" min="0" max="100" 
+                                                   value="{{ settings.get('tax_rate', {}).get('value', '15') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="language" class="form-label">لغة النظام</label>
+                                            <select class="form-select" id="language" name="language">
+                                                <option value="ar" {{ 'selected' if settings.get('language', {}).get('value') == 'ar' else '' }}>العربية</option>
+                                                <option value="en" {{ 'selected' if settings.get('language', {}).get('value') == 'en' else '' }}>English</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="timezone" class="form-label">المنطقة الزمنية</label>
+                                            <select class="form-select" id="timezone" name="timezone">
+                                                <option value="Asia/Riyadh" {{ 'selected' if settings.get('timezone', {}).get('value') == 'Asia/Riyadh' else '' }}>آسيا/الرياض</option>
+                                                <option value="UTC" {{ 'selected' if settings.get('timezone', {}).get('value') == 'UTC' else '' }}>UTC</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="auto_backup" name="auto_backup" 
+                                               {{ 'checked' if settings.get('auto_backup', {}).get('value') == '1' else '' }}>
+                                        <label class="form-check-label" for="auto_backup">
+                                            تفعيل النسخ الاحتياطي التلقائي
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إدارة المستخدمين -->
+                <div class="tab-pane fade" id="users">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-users-cog me-2"></i>إدارة المستخدمين</h5>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="fas fa-plus me-1"></i>إضافة مستخدم
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>اسم المستخدم</th>
+                                            <th>البريد الإلكتروني</th>
+                                            <th>الدور</th>
+                                            <th>الحالة</th>
+                                            <th>آخر دخول</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>admin</td>
+                                            <td>admin@rashid.com</td>
+                                            <td><span class="badge bg-danger">مدير</span></td>
+                                            <td><span class="badge bg-success">نشط</span></td>
+                                            <td>الآن</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">تعديل</button>
+                                                <button class="btn btn-sm btn-outline-danger">حذف</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- النسخ الاحتياطي -->
+                <div class="tab-pane fade" id="backup">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-database me-2"></i>النسخ الاحتياطي</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-download fa-3x text-primary mb-3"></i>
+                                            <h5>إنشاء نسخة احتياطية</h5>
+                                            <p class="text-muted">إنشاء نسخة احتياطية من قاعدة البيانات</p>
+                                            <button class="btn btn-primary" onclick="createBackup()">
+                                                <i class="fas fa-download me-2"></i>إنشاء نسخة احتياطية
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-upload fa-3x text-success mb-3"></i>
+                                            <h5>استعادة نسخة احتياطية</h5>
+                                            <p class="text-muted">استعادة البيانات من نسخة احتياطية</p>
+                                            <input type="file" id="backupFile" class="form-control mb-2" accept=".db,.sql">
+                                            <button class="btn btn-success" onclick="restoreBackup()">
+                                                <i class="fas fa-upload me-2"></i>استعادة
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>النسخ الاحتياطية المتاحة</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">backup_2024_01_15.db</h6>
+                                                <small class="text-muted">15 يناير 2024 - 2.5 ميجابايت</small>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-primary me-2">تحميل</button>
+                                                <button class="btn btn-sm btn-outline-danger">حذف</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الإشعارات -->
+                <div class="tab-pane fade" id="notifications">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-bell me-2"></i>إعدادات الإشعارات</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="notificationsForm">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" checked>
+                                        <label class="form-check-label" for="email_notifications">
+                                            إشعارات البريد الإلكتروني
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="maintenance_alerts" name="maintenance_alerts" checked>
+                                        <label class="form-check-label" for="maintenance_alerts">
+                                            تنبيهات الصيانة
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="expense_alerts" name="expense_alerts" checked>
+                                        <label class="form-check-label" for="expense_alerts">
+                                            تنبيهات المصروفات الكبيرة
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="alert_threshold" class="form-label">حد تنبيه المصروفات (ريال)</label>
+                                    <input type="number" class="form-control" id="alert_threshold" name="alert_threshold" 
+                                           value="5000" min="0">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الأمان -->
+                <div class="tab-pane fade" id="security">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-shield-alt me-2"></i>إعدادات الأمان</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="securityForm">
+                                <div class="mb-3">
+                                    <label for="session_timeout" class="form-label">مهلة انتهاء الجلسة (دقيقة)</label>
+                                    <input type="number" class="form-control" id="session_timeout" name="session_timeout" 
+                                           value="30" min="5" max="480">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="force_https" name="force_https">
+                                        <label class="form-check-label" for="force_https">
+                                            فرض استخدام HTTPS
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="audit_log" name="audit_log" checked>
+                                        <label class="form-check-label" for="audit_log">
+                                            تفعيل سجل التدقيق
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="password_policy" class="form-label">سياسة كلمة المرور</label>
+                                    <select class="form-select" id="password_policy" name="password_policy">
+                                        <option value="basic">أساسية (6 أحرف على الأقل)</option>
+                                        <option value="medium" selected>متوسطة (8 أحرف مع أرقام)</option>
+                                        <option value="strong">قوية (12 حرف مع رموز خاصة)</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة مستخدم -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إضافة مستخدم جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">اسم المستخدم</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">الدور</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="user">مستخدم</option>
+                            <option value="admin">مدير</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="addUser()">إضافة المستخدم</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // معالجة إرسال النماذج
+    const forms = ['companyForm', 'systemForm', 'notificationsForm', 'securityForm'];
+    
+    forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveSettings(this);
+            });
+        }
+    });
+});
+
+function saveSettings(form) {
+    const formData = new FormData(form);
+    
+    // محاكاة حفظ الإعدادات
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري الحفظ...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>تم الحفظ';
+        submitBtn.className = 'btn btn-success';
+        
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.className = 'btn btn-primary';
+            submitBtn.disabled = false;
+        }, 2000);
+    }, 1000);
+}
+
+function createBackup() {
+    if (confirm('هل تريد إنشاء نسخة احتياطية من قاعدة البيانات؟')) {
+        // محاكاة إنشاء النسخة الاحتياطية
+        alert('تم إنشاء النسخة الاحتياطية بنجاح!');
+    }
+}
+
+function restoreBackup() {
+    const fileInput = document.getElementById('backupFile');
+    
+    if (!fileInput.files.length) {
+        alert('يرجى اختيار ملف النسخة الاحتياطية أولاً');
+        return;
+    }
+    
+    if (confirm('تحذير: سيتم استبدال جميع البيانات الحالية. هل تريد المتابعة؟')) {
+        // محاكاة استعادة النسخة الاحتياطية
+        alert('تم استعادة النسخة الاحتياطية بنجاح!');
+    }
+}
+
+function addUser() {
+    const form = document.getElementById('addUserForm');
+    const formData = new FormData(form);
+    
+    // التحقق من البيانات
+    if (!formData.get('username') || !formData.get('email') || !formData.get('password')) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+    
+    // محاكاة إضافة المستخدم
+    alert('تم إضافة المستخدم بنجاح!');
+    
+    // إغلاق النافذة وإعادة تعيين النموذج
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+    modal.hide();
+    form.reset();
+}
+</script>
+{% endblock %}

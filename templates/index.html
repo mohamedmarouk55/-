@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}الرئيسية - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}لوحة التحكم الرئيسية{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>مرحباً بك في نظام الإدارة الشامل</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">نظام متكامل لإدارة الموظفين والسيارات والبيانات المالية بواجهة حديثة وسهلة الاستخدام</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- الإحصائيات السريعة -->
+<div class="row mb-4" id="statsContainer">
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-primary">
+            <i class="fas fa-users"></i>
+            <h3 id="employeesCount">0</h3>
+            <p class="mb-0">إجمالي الموظفين</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-info">
+            <i class="fas fa-car"></i>
+            <h3 id="carsCount">0</h3>
+            <p class="mb-0">إجمالي السيارات</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-success">
+            <i class="fas fa-check-circle"></i>
+            <h3 id="availableCars">0</h3>
+            <p class="mb-0">السيارات المتاحة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-warning">
+            <i class="fas fa-dollar-sign"></i>
+            <h3 id="netProfit">0</h3>
+            <p class="mb-0">صافي الربح</p>
+        </div>
+    </div>
+</div>
+
+<!-- الإحصائيات المالية التفصيلية -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>إجمالي الإيرادات</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-success" id="totalIncome">0 ريال</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>إجمالي المصروفات</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-danger" id="totalExpenses">0 ريال</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- الإجراءات السريعة -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>الإجراءات السريعة</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('treasury') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-cash-register me-2"></i>الخزينة
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('car_entry') }}" class="btn btn-success w-100">
+                            <i class="fas fa-plus-circle me-2"></i>إدخال السيارات
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('car_delivery') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-hand-holding me-2"></i>بيانات التسليم
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('car_receipt') }}" class="btn btn-info w-100">
+                            <i class="fas fa-handshake me-2"></i>بيانات الاستلام
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('expenses') }}" class="btn btn-danger w-100">
+                            <i class="fas fa-receipt me-2"></i>المصروفات
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('reports_page') }}" class="btn btn-secondary w-100">
+                            <i class="fas fa-chart-bar me-2"></i>التقارير
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- معلومات النظام -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>معلومات النظام</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-users text-primary me-2"></i>إدارة الموظفين</h6>
+                        <p class="text-muted">إضافة وتعديل وحذف بيانات الموظفين مع تتبع المناصب والأقسام والرواتب</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-car text-info me-2"></i>إدارة السيارات</h6>
+                        <p class="text-muted">تتبع أسطول السيارات مع معلومات شاملة عن كل مركبة وحالتها</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-chart-line text-success me-2"></i>البيانات المالية</h6>
+                        <p class="text-muted">تسجيل ومتابعة الإيرادات والمصروفات مع تقارير مالية تفصيلية</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // تحميل الإحصائيات عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStats();
+    });
+    
+    function loadStats() {
+        fetch('/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                // تحديث الإحصائيات
+                document.getElementById('employeesCount').textContent = data.employees_count;
+                document.getElementById('carsCount').textContent = data.cars_count;
+                document.getElementById('availableCars').textContent = data.available_cars;
+                document.getElementById('netProfit').textContent = formatCurrency(data.net_profit);
+                document.getElementById('totalIncome').textContent = formatCurrency(data.total_income);
+                document.getElementById('totalExpenses').textContent = formatCurrency(data.total_expenses);
+                
+                // تأثير العد التصاعدي
+                animateNumbers();
+            })
+            .catch(error => {
+                console.error('خطأ في تحميل الإحصائيات:', error);
+            });
+    }
+    
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('ar-SA', {
+            style: 'currency',
+            currency: 'SAR',
+            minimumFractionDigits: 0
+        }).format(amount);
+    }
+    
+    function animateNumbers() {
+        const numbers = document.querySelectorAll('#statsContainer h3');
+        numbers.forEach(number => {
+            const finalValue = parseInt(number.textContent.replace(/[^\d]/g, ''));
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                
+                if (number.id === 'netProfit') {
+                    number.textContent = formatCurrency(currentValue);
+                } else {
+                    number.textContent = Math.floor(currentValue);
+                }
+            }, 30);
+        });
+    }
+    
+    // تحديث الإحصائيات كل 30 ثانية
+    setInterval(loadStats, 30000);
+</script>
+{% endblock %}

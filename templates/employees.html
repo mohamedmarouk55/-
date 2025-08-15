@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}الموظفين - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إدارة الموظفين{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>قائمة الموظفين</h5>
+                <a href="{{ url_for('add_employee') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>إضافة موظف جديد
+                </a>
+            </div>
+            <div class="card-body">
+                {% if employees %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>الرقم الوظيفي</th>
+                                    <th>الاسم</th>
+                                    <th>المنصب</th>
+                                    <th>القسم</th>
+                                    <th>الراتب</th>
+                                    <th>الهاتف</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>تاريخ التوظيف</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employees %}
+                                <tr>
+                                    <td><strong class="text-primary">{{ employee[1] or 'غير محدد' }}</strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <strong>{{ employee[2] }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ employee[3] }}</span>
+                                    </td>
+                                    <td>{{ employee[4] }}</td>
+                                    <td>
+                                        <strong class="text-success">{{ "{:,.0f}".format(employee[5]) }} ريال</strong>
+                                    </td>
+                                    <td>
+                                        {% if employee[6] %}
+                                            <a href="tel:{{ employee[6] }}" class="text-decoration-none">
+                                                <i class="fas fa-phone me-1"></i>{{ employee[6] }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if employee[7] %}
+                                            <a href="mailto:{{ employee[7] }}" class="text-decoration-none">
+                                                <i class="fas fa-envelope me-1"></i>{{ employee[7] }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ employee[8] }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewEmployee({{ employee[0] }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="editEmployee({{ employee[0] }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete({{ employee[0] }}, '{{ employee[1] }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد بيانات موظفين</h5>
+                        <p class="text-muted">ابدأ بإضافة موظف جديد لعرض البيانات هنا</p>
+                        <a href="{{ url_for('add_employee') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>إضافة موظف جديد
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات الموظفين -->
+{% if employees %}
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-primary">
+            <i class="fas fa-users"></i>
+            <h3>{{ employees|length }}</h3>
+            <p class="mb-0">إجمالي الموظفين</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-success">
+            <i class="fas fa-money-bill-wave"></i>
+            <h3>{{ "{:,.0f}".format(employees|sum(attribute=4)) }}</h3>
+            <p class="mb-0">إجمالي الرواتب (ريال)</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-info">
+            <i class="fas fa-calculator"></i>
+            <h3>{{ "{:,.0f}".format((employees|sum(attribute=4)) / employees|length) }}</h3>
+            <p class="mb-0">متوسط الراتب (ريال)</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف الموظف <strong id="employeeName"></strong>؟</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>لا يمكن التراجع عن هذا الإجراء</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">حذف</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(employeeId, employeeName) {
+        document.getElementById('employeeName').textContent = employeeName;
+        document.getElementById('confirmDeleteBtn').href = '/delete_employee/' + employeeId;
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+    
+    function viewEmployee(employeeId) {
+        // يمكن إضافة نافذة منبثقة لعرض تفاصيل الموظف
+        alert('عرض تفاصيل الموظف رقم: ' + employeeId);
+    }
+    
+    function editEmployee(employeeId) {
+        // يمكن إضافة صفحة تعديل الموظف
+        alert('تعديل الموظف رقم: ' + employeeId);
+    }
+    
+    // تأثير البحث السريع
+    function setupSearch() {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control mb-3';
+        searchInput.placeholder = 'البحث في الموظفين...';
+        
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody && document.querySelector('table')) {
+            cardBody.insertBefore(searchInput, cardBody.firstChild);
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', setupSearch);
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}عهدة السيارات - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}عهدة السيارات{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-handshake me-2"></i>سجل عهدة السيارات</h5>
+            </div>
+            <div class="card-body">
+                {% if custody_records %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>رقم الموظف</th>
+                                <th>اسم الموظف</th>
+                                <th>السيارة</th>
+                                <th>رقم اللوحة</th>
+                                <th>تاريخ العهدة</th>
+                                <th>تاريخ الإرجاع المتوقع</th>
+                                <th>الحالة</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in custody_records %}
+                            <tr>
+                                <td>{{ record.employee_number }}</td>
+                                <td>{{ record.employee_name or 'غير محدد' }}</td>
+                                <td>{{ record.brand }} {{ record.model }}</td>
+                                <td>{{ record.license_plate }}</td>
+                                <td>{{ record.custody_date }}</td>
+                                <td>{{ record.expected_return or 'غير محدد' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if record.status == 'مُرجعة' else 'warning' }}">
+                                        {{ record.status }}
+                                    </span>
+                                </td>
+                                <td>{{ record.notes or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">لا توجد سجلات عهدة حالياً</h5>
+                    <p class="text-muted">سيتم عرض سجلات عهدة السيارات هنا عند إضافتها</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>معلومات عهدة السيارات</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success me-2"></i>السيارات المُرجعة</h6>
+                        <p class="text-muted">السيارات التي تم إرجاعها من الموظفين</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-clock text-warning me-2"></i>السيارات في العهدة</h6>
+                        <p class="text-muted">السيارات الموجودة حالياً في عهدة الموظفين</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

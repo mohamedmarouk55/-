@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}التقارير المالية - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}التقارير المالية{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-success">
+            <i class="fas fa-arrow-up"></i>
+            <h3>{{ "{:,.0f}".format(total_income) }}</h3>
+            <p class="mb-0">إجمالي الإيرادات (ريال)</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-danger">
+            <i class="fas fa-arrow-down"></i>
+            <h3>{{ "{:,.0f}".format(total_expenses) }}</h3>
+            <p class="mb-0">إجمالي المصروفات (ريال)</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-{{ 'success' if net_profit >= 0 else 'danger' }}">
+            <i class="fas fa-chart-line"></i>
+            <h3>{{ "{:,.0f}".format(net_profit) }}</h3>
+            <p class="mb-0">صافي الربح (ريال)</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>ملخص التقرير المالي</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="fas fa-plus-circle me-2"></i>الإيرادات</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-dot-circle text-success me-2"></i>إيداعات الخزينة: {{ "{:,.0f}".format(total_income) }} ريال</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-danger"><i class="fas fa-minus-circle me-2"></i>المصروفات</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-dot-circle text-danger me-2"></i>إجمالي المصروفات: {{ "{:,.0f}".format(total_expenses) }} ريال</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6><i class="fas fa-calculator me-2"></i>النتيجة المالية</h6>
+                        {% if net_profit >= 0 %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>ربح:</strong> تحقق ربح قدره {{ "{:,.0f}".format(net_profit) }} ريال
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>خسارة:</strong> تم تسجيل خسارة قدرها {{ "{:,.0f}".format(abs(net_profit)) }} ريال
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>معلومات إضافية</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar me-2"></i>فترة التقرير</h6>
+                        <p class="text-muted">جميع المعاملات المسجلة في النظام</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-sync me-2"></i>آخر تحديث</h6>
+                        <p class="text-muted">{{ moment().format('YYYY-MM-DD HH:mm') }}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        هذا التقرير يعرض ملخص الوضع المالي الحالي للشركة بناءً على البيانات المسجلة في النظام
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

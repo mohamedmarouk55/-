@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block title %}البيانات المالية - نظام إدارة شامل{% endblock %}
+
+{% block page_title %}إدارة البيانات المالية{% endblock %}
+
+{% block content %}
+<!-- الإحصائيات المالية -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-success">
+            <i class="fas fa-arrow-up"></i>
+            <h3>{{ "{:,.0f}".format(total_income) }}</h3>
+            <p class="mb-0">إجمالي الإيرادات (ريال)</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-danger">
+            <i class="fas fa-arrow-down"></i>
+            <h3>{{ "{:,.0f}".format(total_expense) }}</h3>
+            <p class="mb-0">إجمالي المصروفات (ريال)</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card {% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <h3>{{ "{:,.0f}".format(net_profit) }}</h3>
+            <p class="mb-0">صافي الربح (ريال)</p>
+        </div>
+    </div>
+</div>
+
+<!-- السجلات المالية -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>السجلات المالية</h5>
+                <a href="{{ url_for('add_financial') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>إضافة سجل مالي
+                </a>
+            </div>
+            <div class="card-body">
+                {% if financial_records %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>الرقم</th>
+                                    <th>النوع</th>
+                                    <th>الفئة</th>
+                                    <th>المبلغ</th>
+                                    <th>الوصف</th>
+                                    <th>التاريخ</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in financial_records %}
+                                <tr>
+                                    <td>{{ record[0] }}</td>
+                                    <td>
+                                        {% if record[1] == 'إيراد' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-arrow-up me-1"></i>{{ record[1] }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-arrow-down me-1"></i>{{ record[1] }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ record[2] }}</span>
+                                    </td>
+                                    <td>
+                                        {% if record[1] == 'إيراد' %}
+                                            <strong class="text-success">+{{ "{:,.0f}".format(record[3]) }} ريال</strong>
+                                        {% else %}
+                                            <strong class="text-danger">-{{ "{:,.0f}".format(record[3]) }} ريال</strong>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record[4] %}
+                                            <span class="description-text">{{ record[4][:50] }}{% if record[4]|length > 50 %}...{% endif %}</span>
+                                        {% else %}
+                                            <span class="text-muted">لا يوجد وصف</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ record[5] }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewRecord({{ record[0] }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="editRecord({{ record[0] }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete({{ record[0] }}, '{{ record[2] }}', {{ record[3] }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد سجلات مالية</h5>
+                        <p class="text-muted">ابدأ بإضافة سجل مالي لعرض البيانات هنا</p>
+                        <a href="{{ url_for('add_financial') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>إضافة سجل مالي
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- الرسم البياني للإيرادات والمصروفات -->
+{% if financial_records %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>الرسم البياني للإيرادات والمصروفات</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="financialChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- تحليل الفئات -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-pie-chart me-2"></i>تحليل فئات الإيرادات</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="incomeChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-pie-chart me-2"></i>تحليل فئات المصروفات</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="expenseChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف السجل المالي؟</p>
+                <div class="alert alert-info">
+                    <strong>الفئة:</strong> <span id="recordCategory"></span><br>
+                    <strong>المبلغ:</strong> <span id="recordAmount"></span> ريال
+                </div>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>لا يمكن التراجع عن هذا الإجراء</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">حذف</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .description-text {
+        cursor: help;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(40, 167, 69, 0.1);
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+    
+    .stats-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997);
+    }
+    
+    .stats-card.text-danger::before {
+        background: linear-gradient(90deg, #dc3545, #e74c3c);
+    }
+    
+    .stats-card.text-success::before {
+        background: linear-gradient(90deg, #28a745, #20c997);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    function confirmDelete(recordId, category, amount) {
+        document.getElementById('recordCategory').textContent = category;
+        document.getElementById('recordAmount').textContent = new Intl.NumberFormat('ar-SA').format(amount);
+        document.getElementById('confirmDeleteBtn').href = '/delete_financial/' + recordId;
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+    
+    function viewRecord(recordId) {
+        alert('عرض تفاصيل السجل رقم: ' + recordId);
+    }
+    
+    function editRecord(recordId) {
+        alert('تعديل السجل رقم: ' + recordId);
+    }
+    
+    // تأثير البحث السريع
+    function setupSearch() {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control mb-3';
+        searchInput.placeholder = 'البحث في السجلات المالية...';
+        
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody && document.querySelector('table')) {
+            cardBody.insertBefore(searchInput, cardBody.firstChild);
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+    }
+    
+    // فلترة حسب النوع
+    function setupTypeFilter() {
+        const filterSelect = document.createElement('select');
+        filterSelect.className = 'form-control mb-3';
+        filterSelect.innerHTML = `
+            <option value="">جميع الأنواع</option>
+            <option value="إيراد">الإيرادات فقط</option>
+            <option value="مصروف">المصروفات فقط</option>
+        `;
+        
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody && document.querySelector('table')) {
+            const searchInput = cardBody.querySelector('input');
+            if (searchInput) {
+                cardBody.insertBefore(filterSelect, searchInput.nextSibling);
+            } else {
+                cardBody.insertBefore(filterSelect, cardBody.firstChild);
+            }
+            
+            filterSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    if (selectedType === '') {
+                        row.style.display = '';
+                    } else {
+                        const typeCell = row.querySelector('td:nth-child(2) .badge');
+                        const typeText = typeCell.textContent.trim();
+                        row.style.display = typeText === selectedType ? '' : 'none';
+                    }
+                });
+            });
+        }
+    }
+    
+    // إنشاء الرسوم البيانية
+    function createCharts() {
+        // بيانات وهمية للرسم البياني - يجب استبدالها ببيانات حقيقية من الخادم
+        const financialData = {
+            labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+            income: [50000, 60000, 45000, 70000, 55000, 80000],
+            expense: [30000, 40000, 35000, 45000, 38000, 50000]
+        };
+        
+        // الرسم البياني الرئيسي
+        const ctx = document.getElementById('financialChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: financialData.labels,
+                    datasets: [{
+                        label: 'الإيرادات',
+                        data: financialData.income,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'المصروفات',
+                        data: financialData.expense,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('ar-SA').format(value) + ' ريال';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // رسم بياني دائري للإيرادات
+        const incomeCtx = document.getElementById('incomeChart');
+        if (incomeCtx) {
+            new Chart(incomeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['المبيعات', 'الخدمات', 'الاستثمارات', 'أخرى'],
+                    datasets: [{
+                        data: [60, 25, 10, 5],
+                        backgroundColor: [
+                            '#28a745',
+                            '#17a2b8',
+                            '#ffc107',
+                            '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // رسم بياني دائري للمصروفات
+        const expenseCtx = document.getElementById('expenseChart');
+        if (expenseCtx) {
+            new Chart(expenseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['الرواتب', 'الصيانة', 'الوقود', 'التأمين', 'أخرى'],
+                    datasets: [{
+                        data: [40, 20, 15, 15, 10],
+                        backgroundColor: [
+                            '#dc3545',
+                            '#fd7e14',
+                            '#ffc107',
+                            '#6f42c1',
+                            '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        setupSearch();
+        setupTypeFilter();
+        createCharts();
+    });
+</script>
+{% endblock %}
