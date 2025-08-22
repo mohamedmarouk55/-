@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة المستخدمين - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users-cog me-2"></i>إدارة المستخدمين</h2>
+                <a href="{{ url_for('add_user') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>إضافة مستخدم جديد
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المستخدمين -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4>{{ users|length }}</h4>
+                    <p class="mb-0">إجمالي المستخدمين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-shield fa-2x mb-2"></i>
+                    <h4>{{ users|selectattr('3', 'equalto', 'admin')|list|length }}</h4>
+                    <p class="mb-0">المديرين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-user fa-2x mb-2"></i>
+                    <h4>{{ users|selectattr('3', 'equalto', 'user')|list|length }}</h4>
+                    <p class="mb-0">المستخدمين العاديين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h4>{{ moment().format('HH:mm') if moment else 'الآن' }}</h4>
+                    <p class="mb-0">الوقت الحالي</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول المستخدمين -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-table me-2"></i>قائمة المستخدمين</h5>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>اسم المستخدم</th>
+                                        <th>الصلاحية</th>
+                                        <th>تاريخ الإنشاء</th>
+                                        <th>آخر تحديث</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td><strong class="text-primary">{{ user[0] }}</strong></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-2">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <strong>{{ user[1] }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if user[3] == 'admin' %}
+                                                <span class="badge bg-danger">مدير</span>
+                                            {% else %}
+                                                <span class="badge bg-primary">مستخدم</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user[4] if user[4] else 'غير محدد' }}</td>
+                                        <td>{{ user[5] if user[5] else 'لم يحدث' }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                {% if user[1] != session.username %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteUser({{ user[0] }}, '{{ user[1] }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% else %}
+                                                <span class="badge bg-success">المستخدم الحالي</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">لا توجد مستخدمين</h5>
+                            <p class="text-muted">ابدأ بإضافة مستخدم جديد</p>
+                            <a href="{{ url_for('add_user') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>إضافة مستخدم جديد
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h5>هل أنت متأكد من حذف المستخدم؟</h5>
+                    <p class="text-muted">المستخدم: <strong id="userName"></strong></p>
+                    <p class="text-danger"><strong>تحذير:</strong> لا يمكن التراجع عن هذا الإجراء!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>حذف المستخدم
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDeleteUser(userId, userName) {
+        document.getElementById('userName').textContent = userName;
+        
+        // إنشاء نموذج للحذف
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/delete_user/' + userId;
+        
+        document.getElementById('confirmDeleteBtn').onclick = function() {
+            document.body.appendChild(form);
+            form.submit();
+        };
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+</script>
+{% endblock %}

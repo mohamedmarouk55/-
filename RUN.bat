@@ -1,13 +1,13 @@
 @echo off
 chcp 65001 > nul
-title نظام الإدارة الشامل - RASHID INDUSTRIAL CO.
+title نظام الإدارة الشامل - AL RASHID INDUSTRIAL CO.
 
 color 0A
 cls
 echo.
 echo ╔══════════════════════════════════════════════════════════════╗
 echo ║                نظام الإدارة الشامل المتعدد الشاشات                ║
-echo ║                    RASHID INDUSTRIAL CO.                    ║
+echo ║                  AL RASHID INDUSTRIAL CO.                   ║
 echo ║                                                              ║
 echo ║  🌐 سيتم فتح المتصفح تلقائياً عند جاهزية النظام               ║
 echo ║  🚀 تشغيل سريع ومحسن                                        ║
@@ -59,7 +59,7 @@ echo.
 echo ╔══════════════════════════════════════════════════════════════╗
 echo ║                       تم إيقاف النظام                          ║
 echo ║                                                              ║
-echo ║  شكراً لاستخدام نظام RASHID INDUSTRIAL CO.                  ║
+echo ║  شكراً لاستخدام نظام AL RASHID INDUSTRIAL CO.             ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 pause

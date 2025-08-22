@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الموظف{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-user me-2"></i>تفاصيل الموظف</h1>
+                    <p class="text-muted">عرض تفاصيل الموظف: {{ employee[2] }}</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('edit_employee', employee_id=employee[0]) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>تعديل
+                    </a>
+                    <a href="{{ url_for('employees') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right me-2"></i>العودة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>المعلومات الأساسية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>الرقم الوظيفي:</label>
+                                <span class="badge bg-primary">{{ employee[1] }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>الاسم الكامل:</label>
+                                <span>{{ employee[2] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>المنصب:</label>
+                                <span>{{ employee[3] }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>القسم:</label>
+                                <span>{{ employee[4] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>الراتب:</label>
+                                <span class="text-success fw-bold">{{ "{:,.0f}".format(employee[5]) }} ريال</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>الحالة:</label>
+                                {% if employee[9] == 'نشط' %}
+                                    <span class="badge bg-success">{{ employee[9] }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ employee[9] }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-address-card me-2"></i>معلومات الاتصال</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>رقم الهاتف:</label>
+                        <span>{{ employee[6] or 'غير محدد' }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>البريد الإلكتروني:</label>
+                        <span>{{ employee[7] or 'غير محدد' }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>تاريخ التوظيف:</label>
+                        <span>{{ employee[8] }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            {% if employee[10] %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-sticky-note me-2"></i>ملاحظات</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ employee[10] }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock me-2"></i>معلومات النظام</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>تاريخ الإنشاء:</label>
+                                <span>{{ employee[11] }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>آخر تحديث:</label>
+                                <span>{{ employee[12] or 'لم يتم التحديث' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item label {
+    font-weight: bold;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-size: 1.1rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

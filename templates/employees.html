@@ -115,14 +115,14 @@
     <div class="col-md-4 mb-3">
         <div class="stats-card text-success">
             <i class="fas fa-money-bill-wave"></i>
-            <h3>{{ "{:,.0f}".format(employees|sum(attribute=4)) }}</h3>
+            <h3>{{ "{:,.0f}".format(total_salaries) }}</h3>
             <p class="mb-0">إجمالي الرواتب (ريال)</p>
         </div>
     </div>
     <div class="col-md-4 mb-3">
         <div class="stats-card text-info">
             <i class="fas fa-calculator"></i>
-            <h3>{{ "{:,.0f}".format((employees|sum(attribute=4)) / employees|length) }}</h3>
+            <h3>{{ "{:,.0f}".format(average_salary) }}</h3>
             <p class="mb-0">متوسط الراتب (ريال)</p>
         </div>
     </div>
@@ -184,13 +184,11 @@
     }
     
     function viewEmployee(employeeId) {
-        // يمكن إضافة نافذة منبثقة لعرض تفاصيل الموظف
-        alert('عرض تفاصيل الموظف رقم: ' + employeeId);
+        window.location.href = '/employee/' + employeeId;
     }
     
     function editEmployee(employeeId) {
-        // يمكن إضافة صفحة تعديل الموظف
-        alert('تعديل الموظف رقم: ' + employeeId);
+        window.location.href = '/edit_employee/' + employeeId;
     }
     
     // تأثير البحث السريع

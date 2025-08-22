@@ -9,21 +9,21 @@
     <div class="col-md-4">
         <div class="stats-card text-success">
             <i class="fas fa-arrow-up"></i>
-            <h3>{{ "{:,.0f}".format(total_income) }}</h3>
+            <h3>{{ "{:,.0f}".format(total_income or 0) }}</h3>
             <p class="mb-0">إجمالي الإيرادات (ريال)</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="stats-card text-danger">
             <i class="fas fa-arrow-down"></i>
-            <h3>{{ "{:,.0f}".format(total_expenses) }}</h3>
+            <h3>{{ "{:,.0f}".format(total_expenses or 0) }}</h3>
             <p class="mb-0">إجمالي المصروفات (ريال)</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="stats-card text-{{ 'success' if net_profit >= 0 else 'danger' }}">
             <i class="fas fa-chart-line"></i>
-            <h3>{{ "{:,.0f}".format(net_profit) }}</h3>
+            <h3>{{ "{:,.0f}".format(net_profit or 0) }}</h3>
             <p class="mb-0">صافي الربح (ريال)</p>
         </div>
     </div>

@@ -155,7 +155,7 @@
             </div>
             <div class="card-body text-center">
                 <h3 class="text-primary">
-                    {{ "{:,.0f}".format(cars|selectattr(7)|sum(attribute=7)) }} ريال
+                    {{ "{:,.0f}".format(total_purchase_price) }} ريال
                 </h3>
             </div>
         </div>
@@ -167,7 +167,7 @@
             </div>
             <div class="card-body text-center">
                 <h3 class="text-success">
-                    {{ "{:,.0f}".format(cars|selectattr(8)|sum(attribute=8)) }} ريال
+                    {{ "{:,.0f}".format(total_current_value) }} ريال
                 </h3>
             </div>
         </div>

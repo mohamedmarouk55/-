@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الموظف{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1><i class="fas fa-user-edit me-2"></i>تعديل الموظف</h1>
+                <p class="text-muted">تعديل بيانات الموظف: {{ employee[2] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-edit me-2"></i>تعديل البيانات</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="editEmployeeForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="employee_number" class="form-label">الرقم الوظيفي <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="employee_number" name="employee_number" 
+                                           value="{{ employee[1] }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">الاسم الكامل <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ employee[2] }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="position" class="form-label">المنصب <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="position" name="position" 
+                                           value="{{ employee[3] }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="department" class="form-label">القسم <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="department" name="department" required>
+                                        <option value="">اختر القسم</option>
+                                        <option value="الإدارة" {{ 'selected' if employee[4] == 'الإدارة' else '' }}>الإدارة</option>
+                                        <option value="المالية" {{ 'selected' if employee[4] == 'المالية' else '' }}>المالية</option>
+                                        <option value="تقنية المعلومات" {{ 'selected' if employee[4] == 'تقنية المعلومات' else '' }}>تقنية المعلومات</option>
+                                        <option value="الموارد البشرية" {{ 'selected' if employee[4] == 'الموارد البشرية' else '' }}>الموارد البشرية</option>
+                                        <option value="النقل" {{ 'selected' if employee[4] == 'النقل' else '' }}>النقل</option>
+                                        <option value="الصيانة" {{ 'selected' if employee[4] == 'الصيانة' else '' }}>الصيانة</option>
+                                        <option value="أخرى" {{ 'selected' if employee[4] not in ['الإدارة', 'المالية', 'تقنية المعلومات', 'الموارد البشرية', 'النقل', 'الصيانة'] else '' }}>أخرى</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="salary" class="form-label">الراتب (ريال) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="salary" name="salary" 
+                                           value="{{ employee[5] }}" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">الحالة</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="نشط" {{ 'selected' if employee[9] == 'نشط' else '' }}>نشط</option>
+                                        <option value="غير نشط" {{ 'selected' if employee[9] == 'غير نشط' else '' }}>غير نشط</option>
+                                        <option value="مجمد" {{ 'selected' if employee[9] == 'مجمد' else '' }}>مجمد</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">رقم الهاتف</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ employee[6] or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ employee[7] or '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hire_date" class="form-label">تاريخ التوظيف <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="hire_date" name="hire_date" 
+                                   value="{{ employee[8] }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ employee[10] or '' }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>حفظ التغييرات
+                            </button>
+                            <a href="{{ url_for('view_employee', employee_id=employee[0]) }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>معلومات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>نصائح:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>الحقول المميزة بـ <span class="text-danger">*</span> مطلوبة</li>
+                            <li>تأكد من صحة البيانات قبل الحفظ</li>
+                            <li>يمكنك تغيير حالة الموظف حسب الحاجة</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>معلومات النظام:</h6>
+                        <small class="text-muted">
+                            <strong>تاريخ الإنشاء:</strong> {{ employee[11] }}<br>
+                            <strong>آخر تحديث:</strong> {{ employee[12] or 'لم يتم التحديث' }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
+    const salary = document.getElementById('salary').value;
+    
+    if (parseFloat(salary) < 0) {
+        e.preventDefault();
+        alert('يرجى إدخال راتب صحيح أكبر من أو يساوي صفر');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}

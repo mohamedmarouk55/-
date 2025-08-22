@@ -8,9 +8,49 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-cash-register me-2"></i>إدارة الخزينة</h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                    <i class="fas fa-plus me-2"></i>إضافة معاملة جديدة
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" onclick="printTreasury()">
+                        <i class="fas fa-print me-2"></i>طباعة السجل
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                        <i class="fas fa-plus me-2"></i>إضافة معاملة جديدة
+                    </button>
+                </div>
+            </div>
+            
+            <!-- فلاتر التاريخ -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-filter me-2"></i>فلترة حسب التاريخ</h6>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" id="dateFilterForm">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="start_date" class="form-label">من تاريخ</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                                               value="{{ request.args.get('start_date', '') }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="end_date" class="form-label">إلى تاريخ</label>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" 
+                                               value="{{ request.args.get('end_date', '') }}">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-search me-2"></i>فلترة
+                                        </button>
+                                        <a href="{{ url_for('treasury') }}" class="btn btn-secondary">
+                                            <i class="fas fa-times me-2"></i>إلغاء الفلتر
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -21,7 +61,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <i class="fas fa-arrow-up fa-2x mb-2"></i>
-                    <h4>{{ "{:,.2f}".format(total_deposits) }} ريال</h4>
+                    <h4>{{ "{:,.2f}".format(total_deposits or 0) }} ريال</h4>
                     <p class="mb-0">إجمالي الإيداعات</p>
                 </div>
             </div>
@@ -30,7 +70,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
                     <i class="fas fa-arrow-down fa-2x mb-2"></i>
-                    <h4>{{ "{:,.2f}".format(total_withdrawals) }} ريال</h4>
+                    <h4>{{ "{:,.2f}".format(total_withdrawals or 0) }} ريال</h4>
                     <p class="mb-0">إجمالي السحوبات</p>
                 </div>
             </div>
@@ -39,7 +79,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <i class="fas fa-wallet fa-2x mb-2"></i>
-                    <h4>{{ "{:,.2f}".format(current_balance) }} ريال</h4>
+                    <h4>{{ "{:,.2f}".format(current_balance or 0) }} ريال</h4>
                     <p class="mb-0">الرصيد الحالي</p>
                 </div>
             </div>
@@ -74,6 +114,7 @@
                                     <th>رقم المرجع</th>
                                     <th>المستخدم</th>
                                     <th>الرصيد بعد المعاملة</th>
+                                    <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -103,10 +144,20 @@
                                     <td>{{ transaction[4] or '-' }}</td>
                                     <td>{{ transaction[5] or '-' }}</td>
                                     <td class="fw-bold">{{ "{:,.2f}".format(transaction[7] or 0) }} ريال</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('edit_treasury', transaction_id=transaction[0]) }}" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteTransaction({{ transaction[0] }})" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted">
+                                    <td colspan="8" class="text-center text-muted">
                                         <i class="fas fa-inbox fa-2x mb-2"></i>
                                         <br>لا توجد معاملات مسجلة
                                     </td>
@@ -131,7 +182,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('add_treasury_transaction') }}">
+            <form method="POST" action="{{ url_for('treasury') }}">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -170,8 +221,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="date" class="form-label">التاريخ</label>
-                                <input type="date" class="form-control" id="date" name="date" 
-                                       value="{{ moment().format('YYYY-MM-DD') }}" required>
+                                <input type="date" class="form-control" id="date" name="date" required>
                             </div>
                         </div>
                     </div>
@@ -221,5 +271,33 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.value = today;
     });
 });
+
+function confirmDeleteTransaction(transactionId) {
+    if (confirm('هل أنت متأكد من حذف هذه المعاملة؟\nلا يمكن التراجع عن هذا الإجراء.')) {
+        // إنشاء نموذج مخفي للحذف
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/delete_treasury/${transactionId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function printTreasury() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    let url = '/print_treasury';
+    const params = new URLSearchParams();
+    
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+    
+    window.open(url, '_blank');
+}
 </script>
 {% endblock %}

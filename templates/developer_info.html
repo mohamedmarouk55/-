@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}بيانات المطور - نظام إدارة شامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-code me-2"></i>بيانات المطور</h2>
+                <a href="{{ url_for('settings') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>العودة للإعدادات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-tie me-2"></i>معلومات المطور
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if developer %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="developer-avatar text-center mb-4">
+                                <div class="avatar-circle-large">
+                                    <i class="fas fa-user-tie fa-3x"></i>
+                                </div>
+                                <h4 class="mt-3 text-primary">{{ developer[1] }}</h4>
+                                <p class="text-muted">{{ developer[2] }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="developer-details">
+                                <div class="info-item mb-3">
+                                    <div class="info-label">
+                                        <i class="fas fa-user me-2 text-primary"></i>
+                                        <strong>الاسم بالعربية:</strong>
+                                    </div>
+                                    <div class="info-value">{{ developer[1] }}</div>
+                                </div>
+                                
+                                <div class="info-item mb-3">
+                                    <div class="info-label">
+                                        <i class="fas fa-globe me-2 text-success"></i>
+                                        <strong>الاسم بالإنجليزية:</strong>
+                                    </div>
+                                    <div class="info-value">{{ developer[2] }}</div>
+                                </div>
+                                
+                                <div class="info-item mb-3">
+                                    <div class="info-label">
+                                        <i class="fas fa-envelope me-2 text-info"></i>
+                                        <strong>البريد الإلكتروني:</strong>
+                                    </div>
+                                    <div class="info-value">
+                                        <a href="mailto:{{ developer[3] }}" class="text-decoration-none">
+                                            {{ developer[3] }}
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item mb-3">
+                                    <div class="info-label">
+                                        <i class="fas fa-phone me-2 text-warning"></i>
+                                        <strong>رقم الجوال:</strong>
+                                    </div>
+                                    <div class="info-value">
+                                        <a href="tel:+966{{ developer[4] }}" class="text-decoration-none">
+                                            +966 {{ developer[4] }}
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item mb-3">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar me-2 text-secondary"></i>
+                                        <strong>تاريخ الإنشاء:</strong>
+                                    </div>
+                                    <div class="info-value">{{ developer[5] if developer[5] else 'غير محدد' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- معلومات إضافية -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="additional-info">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>معلومات إضافية
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="stat-card text-center">
+                                            <i class="fas fa-code fa-2x text-primary mb-2"></i>
+                                            <h6>مطور النظام</h6>
+                                            <p class="text-muted">نظام إدارة السيارات الشامل</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card text-center">
+                                            <i class="fas fa-tools fa-2x text-success mb-2"></i>
+                                            <h6>التقنيات المستخدمة</h6>
+                                            <p class="text-muted">Python, Flask, SQLite, Bootstrap</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card text-center">
+                                            <i class="fas fa-calendar-check fa-2x text-info mb-2"></i>
+                                            <h6>سنة التطوير</h6>
+                                            <p class="text-muted">2024</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- أزرار التواصل -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <div class="contact-buttons">
+                                <a href="mailto:{{ developer[3] }}" class="btn btn-outline-primary me-2">
+                                    <i class="fas fa-envelope me-2"></i>إرسال بريد إلكتروني
+                                </a>
+                                <a href="tel:+966{{ developer[4] }}" class="btn btn-outline-success">
+                                    <i class="fas fa-phone me-2"></i>اتصال هاتفي
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5>لا توجد بيانات للمطور</h5>
+                        <p class="text-muted">يرجى التواصل مع المدير لإضافة بيانات المطور</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin: 0 auto;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .info-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .info-value a {
+        color: #667eea;
+        transition: color 0.3s ease;
+    }
+    
+    .info-value a:hover {
+        color: #764ba2;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .contact-buttons .btn {
+        min-width: 200px;
+        margin-bottom: 10px;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+</style>
+{% endblock %}

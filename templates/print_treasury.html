@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل معاملات الخزينة - AL RASHID INDUSTRIAL CO.</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .report-title {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .date-range {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .summary-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .summary-item.deposits {
+            border-left: 4px solid #28a745;
+        }
+        
+        .summary-item.withdrawals {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .summary-item.net {
+            border-left: 4px solid #007bff;
+        }
+        
+        .summary-item h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .summary-item .amount {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .deposits .amount { color: #28a745; }
+        .withdrawals .amount { color: #dc3545; }
+        .net .amount { color: #007bff; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .deposit {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .withdrawal {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .balance {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .print-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">
+        🖨️ طباعة
+    </button>
+    
+    <div class="header">
+        <div class="company-name">AL RASHID INDUSTRIAL CO.</div>
+        <div class="report-title">سجل معاملات الخزينة</div>
+        {% if start_date or end_date %}
+        <div class="date-range">
+            {% if start_date and end_date %}
+                الفترة من {{ start_date }} إلى {{ end_date }}
+            {% elif start_date %}
+                من تاريخ {{ start_date }}
+            {% elif end_date %}
+                حتى تاريخ {{ end_date }}
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="date-range">تاريخ الطباعة: <span id="printDate"></span></div>
+    </div>
+    
+    <div class="summary">
+        <div class="summary-item deposits">
+            <h3>إجمالي الإيداعات</h3>
+            <div class="amount">{{ "{:,.2f}".format(total_deposits) }} ريال</div>
+        </div>
+        <div class="summary-item withdrawals">
+            <h3>إجمالي السحوبات</h3>
+            <div class="amount">{{ "{:,.2f}".format(total_withdrawals) }} ريال</div>
+        </div>
+        <div class="summary-item net">
+            <h3>صافي المعاملات</h3>
+            <div class="amount">{{ "{:,.2f}".format(total_deposits - total_withdrawals) }} ريال</div>
+        </div>
+    </div>
+    
+    {% if transactions %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>نوع المعاملة</th>
+                <th>المبلغ</th>
+                <th>الوصف</th>
+                <th>رقم المرجع</th>
+                <th>الرصيد بعد المعاملة</th>
+                <th>المنشئ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ transaction[5] }}</td>
+                <td>
+                    {% if transaction[1] == 'إيداع' %}
+                        <span class="deposit">{{ transaction[1] }}</span>
+                    {% else %}
+                        <span class="withdrawal">{{ transaction[1] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if transaction[1] == 'إيداع' %}
+                        <span class="deposit">+{{ "{:,.2f}".format(transaction[2]) }}</span>
+                    {% else %}
+                        <span class="withdrawal">-{{ "{:,.2f}".format(transaction[2]) }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ transaction[3] or '-' }}</td>
+                <td>{{ transaction[4] or '-' }}</td>
+                <td class="balance">{{ "{:,.2f}".format(transaction[6]) }}</td>
+                <td>{{ transaction[7] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 50px; color: #666;">
+        <h3>لا توجد معاملات في الفترة المحددة</h3>
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <div class="footer-content">
+            <div class="company-section">
+                <p><strong>AL RASHID INDUSTRIAL CO.</strong> - جميع الحقوق محفوظة</p>
+                <p>تم إنشاء هذا التقرير بواسطة نظام إدارة السيارات الشامل</p>
+                <p>عدد المعاملات: {{ transactions|length }}</p>
+            </div>
+            <div class="developer-section">
+                <hr style="margin: 10px 0; border-color: #ddd;">
+                <p style="font-size: 12px; color: #666;">
+                    <strong>المطور:</strong> محمد مبروك عطية | <strong>Developer:</strong> Mohamed Marouk Atia
+                </p>
+                <p style="font-size: 12px; color: #666;">
+                    <strong>البريد الإلكتروني:</strong> mohamedmarouk55@gmail.com | 
+                    <strong>الجوال:</strong> +966 57 045 3337
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // تعيين تاريخ الطباعة
+        document.getElementById('printDate').textContent = new Date().toLocaleString('ar-SA');
+        
+        // طباعة تلقائية عند تحميل الصفحة (اختياري)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

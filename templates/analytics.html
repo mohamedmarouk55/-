@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}التحليلات الشاملة{% endblock %}
+{% block page_title %}التحليلات الشاملة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- إحصائيات سريعة -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">إجمالي الحركات</h6>
+                            <h3 class="mb-0">{{ total_activities }}</h3>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">حركات الخزينة</h6>
+                            <h3 class="mb-0">{{ treasury_count }}</h3>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-cash-register fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">حركات السيارات</h6>
+                            <h3 class="mb-0">{{ car_activities_count }}</h3>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-car fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">حركات الموظفين</h6>
+                            <h3 class="mb-0">{{ employee_activities_count }}</h3>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صف ثاني للإحصائيات -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">المصروفات</h6>
+                            <h3 class="mb-0">{{ expenses_count }}</h3>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <!-- مساحة فارغة للإحصائيات المستقبلية -->
+        </div>
+    </div>
+
+    <!-- فلاتر البحث -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>فلاتر البحث والتصفية
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label">من تاريخ:</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                               value="{{ request.args.get('start_date', '') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label">إلى تاريخ:</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" 
+                               value="{{ request.args.get('end_date', '') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="activity_type" class="form-label">نوع النشاط:</label>
+                        <select class="form-control" id="activity_type" name="activity_type">
+                            <option value="">جميع الأنشطة</option>
+                            <option value="treasury" {{ 'selected' if request.args.get('activity_type') == 'treasury' }}>حركات الخزينة</option>
+                            <option value="expenses" {{ 'selected' if request.args.get('activity_type') == 'expenses' }}>المصروفات</option>
+                            <option value="employees" {{ 'selected' if request.args.get('activity_type') == 'employees' }}>حركات الموظفين</option>
+                            <option value="cars" {{ 'selected' if request.args.get('activity_type') == 'cars' }}>حركات السيارات</option>
+                            <option value="handovers" {{ 'selected' if request.args.get('activity_type') == 'handovers' }}>عمليات التسليم/التسلم</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i>بحث
+                        </button>
+                        <a href="{{ url_for('analytics') }}" class="btn btn-secondary me-2">
+                            <i class="fas fa-refresh me-1"></i>إعادة تعيين
+                        </a>
+                        <button type="button" class="btn btn-success" onclick="printAnalytics()">
+                            <i class="fas fa-print me-1"></i>طباعة
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- سجل التحليلات الشامل -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-bar me-2"></i>سجل التحليلات الشامل
+            </h5>
+            <span class="badge bg-primary">{{ activities|length }} حركة</span>
+        </div>
+        <div class="card-body">
+            {% if activities %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="analyticsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ والوقت</th>
+                            <th>نوع النشاط</th>
+                            <th>الوصف</th>
+                            <th>التفاصيل</th>
+                            <th>المبلغ/القيمة</th>
+                            <th>المستخدم/المسؤول</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in activities %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <small class="text-muted">{{ activity.date }}</small><br>
+                                <small class="text-muted">{{ activity.time if activity.time else '' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge {{ activity.type_class }}">
+                                    <i class="{{ activity.icon }} me-1"></i>{{ activity.type_name }}
+                                </span>
+                            </td>
+                            <td>{{ activity.description }}</td>
+                            <td>
+                                <small class="text-muted">{{ activity.details }}</small>
+                            </td>
+                            <td>
+                                {% if activity.amount %}
+                                    <span class="fw-bold {{ 'text-success' if activity.amount > 0 else 'text-danger' }}">
+                                        {{ "{:,.2f}".format(activity.amount) }} ريال
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ activity.user or activity.responsible or '-' }}</small>
+                            </td>
+                            <td>
+                                {% if activity.status %}
+                                    <span class="badge {{ activity.status_class }}">{{ activity.status }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">لا توجد بيانات للعرض</h5>
+                <p class="text-muted">جرب تغيير فلاتر البحث أو إضافة بيانات جديدة</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- نافذة الطباعة -->
+<div id="printContent" style="display: none;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2>AL RASHID INDUSTRIAL CO.</h2>
+        <h3>التحليلات الشاملة لجميع الأنشطة</h3>
+        {% if request.args.get('start_date') or request.args.get('end_date') %}
+        <p>
+            {% if request.args.get('start_date') and request.args.get('end_date') %}
+                من {{ request.args.get('start_date') }} إلى {{ request.args.get('end_date') }}
+            {% elif request.args.get('start_date') %}
+                من {{ request.args.get('start_date') }}
+            {% elif request.args.get('end_date') %}
+                حتى {{ request.args.get('end_date') }}
+            {% endif %}
+        </p>
+        {% endif %}
+        <p>تاريخ الطباعة: <span id="printDate"></span></p>
+        <hr>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <h4>ملخص الإحصائيات:</h4>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>إجمالي الحركات:</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ total_activities }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>حركات الخزينة:</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ treasury_count }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>حركات السيارات:</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ car_activities_count }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>حركات الموظفين:</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ employee_activities_count }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>المصروفات:</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ expenses_count }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"></td>
+                <td style="border: 1px solid #ddd; padding: 8px;"></td>
+            </tr>
+        </table>
+    </div>
+    
+    {% if activities %}
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">#</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">التاريخ</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">الوصف</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">التفاصيل</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">المبلغ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">{{ loop.index }}</td>
+                <td style="border: 1px solid #ddd; padding: 6px;">{{ activity.date }}</td>
+                <td style="border: 1px solid #ddd; padding: 6px;">{{ activity.description }}</td>
+                <td style="border: 1px solid #ddd; padding: 6px;">{{ activity.details }}</td>
+                <td style="border: 1px solid #ddd; padding: 6px;">
+                    {% if activity.amount %}{{ "{:,.2f}".format(activity.amount) }} ريال{% else %}-{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    
+    <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666;">
+        <hr>
+        <p><strong>AL RASHID INDUSTRIAL CO.</strong></p>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print { display: none !important; }
+    body { margin: 0; }
+    .container-fluid { margin: 0; padding: 0; }
+}
+
+.stats-card {
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-icon {
+    opacity: 0.8;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table td {
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+</style>
+
+<script>
+function printAnalytics() {
+    // تحديث تاريخ الطباعة
+    document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-SA');
+    
+    // إنشاء نافذة طباعة جديدة
+    var printWindow = window.open('', '_blank');
+    var printContent = document.getElementById('printContent').innerHTML;
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>التحليلات الشاملة - AL RASHID INDUSTRIAL CO.</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px; 
+                    direction: rtl; 
+                    font-size: 14px;
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin-bottom: 20px;
+                }
+                th, td { 
+                    border: 1px solid #ddd; 
+                    padding: 8px; 
+                    text-align: right;
+                }
+                th { 
+                    background-color: #f8f9fa; 
+                    font-weight: bold;
+                }
+                h2, h3 { 
+                    text-align: center; 
+                    margin-bottom: 10px;
+                }
+                .text-center { text-align: center; }
+                @media print {
+                    body { margin: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(function() {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+}
+
+// تحديث الجدول تلقائياً عند تغيير الفلاتر
+document.getElementById('filterForm').addEventListener('change', function() {
+    this.submit();
+});
+</script>
+{% endblock %}

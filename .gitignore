@@ -55,7 +55,7 @@ Thumbs.db
 app.log
 
 # Database (optional - remove if you want to include the database)
-# management_system.db
+*.db
 
 # Temporary files
 *.tmp

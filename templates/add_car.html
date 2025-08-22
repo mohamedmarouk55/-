@@ -103,6 +103,25 @@
                         </div>
                     </div>
                     
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="responsible_employee" class="form-label">💡 الموظف المسؤول (اختياري)</label>
+                            <select class="form-control" id="responsible_employee" name="responsible_employee">
+                                <option value="">-- اختر الموظف المسؤول --</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee[0] }}">{{ employee[2] }} - {{ employee[1] }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">💡 يمكنك ربط السيارة بموظف مسؤول (غير إلزامي)</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="insurance_expiry" class="form-label">تاريخ انتهاء التأمين (اختياري)</label>
+                            <input type="date" class="form-control" id="insurance_expiry" name="insurance_expiry">
+                            <div class="form-text">تاريخ انتهاء تأمين السيارة</div>
+                        </div>
+                    </div>
+                    
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="d-flex justify-content-between">

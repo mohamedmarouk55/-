@@ -23,29 +23,61 @@
     <div class="col-md-3 mb-3">
         <div class="stats-card text-primary">
             <i class="fas fa-users"></i>
-            <h3 id="employeesCount">0</h3>
+            <h3>{{ stats.employees_count }}</h3>
             <p class="mb-0">إجمالي الموظفين</p>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stats-card text-info">
             <i class="fas fa-car"></i>
-            <h3 id="carsCount">0</h3>
+            <h3>{{ stats.cars_count }}</h3>
             <p class="mb-0">إجمالي السيارات</p>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stats-card text-success">
             <i class="fas fa-check-circle"></i>
-            <h3 id="availableCars">0</h3>
+            <h3>{{ stats.available_cars }}</h3>
             <p class="mb-0">السيارات المتاحة</p>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stats-card text-warning">
             <i class="fas fa-dollar-sign"></i>
-            <h3 id="netProfit">0</h3>
-            <p class="mb-0">صافي الربح</p>
+            <h3>{{ "{:,.0f}".format(stats.current_balance or 0) }}</h3>
+            <p class="mb-0">رصيد الخزينة</p>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات إضافية -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-danger">
+            <i class="fas fa-car-crash"></i>
+            <h3>{{ stats.used_cars }}</h3>
+            <p class="mb-0">سيارات مستخدمة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-secondary">
+            <i class="fas fa-tools"></i>
+            <h3>{{ stats.maintenance_cars }}</h3>
+            <p class="mb-0">في الصيانة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-info">
+            <i class="fas fa-handshake"></i>
+            <h3>{{ stats.active_custody }}</h3>
+            <p class="mb-0">عهد نشطة</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stats-card text-warning">
+            <i class="fas fa-receipt"></i>
+            <h3>{{ "{:,.0f}".format(stats.monthly_expenses or 0) }}</h3>
+            <p class="mb-0">مصروفات الشهر</p>
         </div>
     </div>
 </div>
@@ -58,7 +90,7 @@
                 <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>إجمالي الإيرادات</h5>
             </div>
             <div class="card-body text-center">
-                <h2 class="text-success" id="totalIncome">0 ريال</h2>
+                <h2 class="text-success">{{ "{:,.0f}".format(stats.total_income or 0) }} ريال</h2>
             </div>
         </div>
     </div>
@@ -68,7 +100,7 @@
                 <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>إجمالي المصروفات</h5>
             </div>
             <div class="card-body text-center">
-                <h2 class="text-danger" id="totalExpenses">0 ريال</h2>
+                <h2 class="text-danger">{{ "{:,.0f}".format(stats.total_expenses or 0) }} ريال</h2>
             </div>
         </div>
     </div>
@@ -84,23 +116,23 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-2 mb-3">
-                        <a href="{{ url_for('treasury') }}" class="btn btn-primary w-100">
+                        <a href="{{ url_for('employees') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-users me-2"></i>الموظفين
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('cars') }}" class="btn btn-success w-100">
+                            <i class="fas fa-car me-2"></i>السيارات
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{{ url_for('treasury') }}" class="btn btn-warning w-100">
                             <i class="fas fa-cash-register me-2"></i>الخزينة
                         </a>
                     </div>
                     <div class="col-md-2 mb-3">
-                        <a href="{{ url_for('car_entry') }}" class="btn btn-success w-100">
-                            <i class="fas fa-plus-circle me-2"></i>إدخال السيارات
-                        </a>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <a href="{{ url_for('car_delivery') }}" class="btn btn-warning w-100">
-                            <i class="fas fa-hand-holding me-2"></i>بيانات التسليم
-                        </a>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <a href="{{ url_for('car_receipt') }}" class="btn btn-info w-100">
-                            <i class="fas fa-handshake me-2"></i>بيانات الاستلام
+                        <a href="{{ url_for('car_custody') }}" class="btn btn-info w-100">
+                            <i class="fas fa-handshake me-2"></i>عهد السيارات
                         </a>
                     </div>
                     <div class="col-md-2 mb-3">
@@ -109,7 +141,7 @@
                         </a>
                     </div>
                     <div class="col-md-2 mb-3">
-                        <a href="{{ url_for('reports_page') }}" class="btn btn-secondary w-100">
+                        <a href="{{ url_for('reports') }}" class="btn btn-secondary w-100">
                             <i class="fas fa-chart-bar me-2"></i>التقارير
                         </a>
                     </div>

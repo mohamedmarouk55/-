@@ -25,14 +25,7 @@ pip install Flask==2.3.3 Werkzeug==2.3.7 Jinja2==3.1.2
 echo.
 echo تشغيل التطبيق...
 echo.
-echo ========================================
-echo التطبيق يعمل الآن على:
-echo http://localhost:5000
-echo ========================================
-echo.
-echo لإيقاف التطبيق، اضغط Ctrl+C
-echo.
 
-python app.py
+python run_app.py
 
 pause

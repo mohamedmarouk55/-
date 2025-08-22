@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل معاملة الخزينة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1><i class="fas fa-edit me-2"></i>تعديل معاملة الخزينة</h1>
+                <p class="text-muted">تعديل بيانات المعاملة</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-edit me-2"></i>تعديل البيانات</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="editTreasuryForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="transaction_type" class="form-label">نوع المعاملة <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="transaction_type" name="transaction_type" required>
+                                        <option value="">اختر نوع المعاملة</option>
+                                        <option value="إيداع" {{ 'selected' if transaction[1] == 'إيداع' else '' }}>إيداع</option>
+                                        <option value="سحب" {{ 'selected' if transaction[1] == 'سحب' else '' }}>سحب</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label">المبلغ (ريال) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           value="{{ transaction[2] }}" min="0.01" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="date" class="form-label">التاريخ <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="date" name="date" 
+                                           value="{{ transaction[5] }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="reference_number" class="form-label">رقم المرجع</label>
+                                    <input type="text" class="form-control" id="reference_number" name="reference_number" 
+                                           value="{{ transaction[4] or '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">الوصف</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ transaction[3] or '' }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>حفظ التغييرات
+                            </button>
+                            <a href="{{ url_for('treasury') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>معلومات المعاملة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>نوع المعاملة:</label>
+                        {% if transaction[1] == 'إيداع' %}
+                            <span class="badge bg-success">{{ transaction[1] }}</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ transaction[1] }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>المبلغ الحالي:</label>
+                        <span class="fw-bold">{{ "{:,.2f}".format(transaction[2]) }} ريال</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>الرصيد بعد المعاملة:</label>
+                        <span class="text-primary fw-bold">{{ "{:,.2f}".format(transaction[6]) }} ريال</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>تم الإنشاء بواسطة:</label>
+                        <span>{{ transaction[7] }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>تاريخ الإنشاء:</label>
+                        <span>{{ transaction[8] }}</span>
+                    </div>
+                    
+                    {% if transaction[9] %}
+                    <div class="info-item">
+                        <label>آخر تحديث:</label>
+                        <span>{{ transaction[9] }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>تنبيه:</strong> تعديل المعاملة لن يؤثر على الرصيد المحسوب
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item label {
+    font-weight: bold;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-size: 1rem;
+}
+</style>
+
+<script>
+document.getElementById('editTreasuryForm').addEventListener('submit', function(e) {
+    const amount = document.getElementById('amount').value;
+    
+    if (parseFloat(amount) <= 0) {
+        e.preventDefault();
+        alert('يرجى إدخال مبلغ صحيح أكبر من صفر');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}
