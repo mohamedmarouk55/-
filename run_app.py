@@ -16,7 +16,7 @@ import threading
 import time
 
 # استيراد Flask وSQLAlchemy
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 
 # استيراد Supabase للتخزين
@@ -89,6 +89,14 @@ def upload_to_supabase(file_path, file_name, bucket="car-photos"):
 # ===========================
 # 5. صفحة تجريبية لرفع صورة
 # ===========================
+@app.route('/')
+def home():
+    return '''
+    <h1>🎉 نظام الإدارة الشامل</h1>
+    <p>مرحبًا بك! النظام شغال على الإنترنت.</p>
+    <a href="/test-upload">جرب رفع صورة إلى Supabase</a>
+    '''
+
 @app.route('/test-upload')
 def test_upload():
     test_image_path = "test.jpg"
@@ -107,9 +115,14 @@ def test_upload():
         <img src="{image_url}" width="300" style="border: 1px solid #ddd; border-radius: 8px;">
         <p><a href="{image_url}" target="_blank">افتح الصورة في نافذة جديدة</a></p>
         <p>الرابط: <a href="{image_url}" target="_blank">{image_url}</a></p>
+        <br>
+        <a href="/">الرجوع للصفحة الرئيسية</a>
         """
     else:
-        return "❌ فشل في رفع الصورة. شوف السجلات (Logs) لمعرفة السبب."
+        return """
+        ❌ فشل في رفع الصورة. شوف السجلات (Logs) لمعرفة السبب.
+        <br><a href="/">الرجوع للصفحة الرئيسية</a>
+        """
 
 # ===========================
 # 6. إعداد السجلات
